@@ -46,7 +46,10 @@ class _WebViewAppState extends State<SnapWebViewScreen> {
                 },
                 navigationDelegate: (navigation) {
                   final host = Uri.parse(navigation.url).toString();
-                  if (host.contains('gojek://') ||
+
+                  //
+                  if (host.contains('https://gojek.link/') ||
+                      host.contains('gojek://') ||
                       host.contains('shopeeid://') ||
                       host.contains('//wsa.wallet.airpay.co.id/') ||
                       // This is handle for sandbox Simulator

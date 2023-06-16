@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spp_app/blocs/auth/auth_bloc.dart';
@@ -19,6 +20,8 @@ class ProfileEditPage extends StatefulWidget {
 }
 
 class _ProfileEditPageState extends State<ProfileEditPage> {
+  bool isSnackbarShown = false;
+  bool isPasswordVisible = false;
   final nisController = TextEditingController(text: '');
   final namasiswaController = TextEditingController(text: '');
   final passwordController = TextEditingController(text: '');
@@ -44,14 +47,29 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          // if (state is AuthFailed) {
-          //   showCustomSnackbar(context, state.e);
-          // }
-
-          if (state is AuthSuccess) {
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/profile-edit-success', (route) => false);
-          }
+          if (state is AuthFailed) {
+            if (state.e.toString().contains('Connection timed out')) {
+              if (state.e.toString().contains(
+                  'New password must be different from old password')) {
+                if (!isSnackbarShown) {
+                  showCustomSnackBar(context,
+                      'New password must be different from old password');
+                  isSnackbarShown = true;
+                }
+              } else {
+                if (!isSnackbarShown) {
+                  showCustomSnackBar(context,
+                      'Koneksi timeout. Mohon periksa koneksi internet Anda.');
+                  isSnackbarShown = true;
+                }
+              }
+            } else {
+              if (!isSnackbarShown) {
+                showCustomSnackBar(context, state.e.toString());
+                isSnackbarShown = true;
+              }
+            }
+          } else if (state is AuthSuccess) {}
         },
         builder: (context, state) {
           if (state is AuthLoading) {
@@ -76,46 +94,76 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomFormField(
+                    CustomFormNis(
                       title: 'Nomor Induk Siswa',
                       readOnly: true,
                       controller: nisController,
+                      decoration: InputDecoration(),
                     ),
                     const SizedBox(
                       height: 16,
                     ),
-                    CustomFormField(
-                      title: 'Nama Siswa',
-                      controller: namasiswaController,
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    CustomFormField(
+                    CustomFormPassword(
                       title: 'Password',
-                      obscureText: true,
                       controller: passwordController,
+                      obscureText: !isPasswordVisible,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isPasswordVisible = !isPasswordVisible;
+                            });
+                          },
+                        ),
+                      ),
                     ),
                     const SizedBox(
                       height: 30,
                     ),
                     CustomFilledButton(
                       title: 'Update Now',
-                      onPressed: () {
-                        context.read<AuthBloc>().add(
-                              AuthUpdateUser(
-                                UserEditFormModel(
-                                  nis: nisController.text,
-                                  nama_siswa: namasiswaController.text,
-                                  password: passwordController.text,
+                      onPressed: () async {
+                        if (isSnackbarShown) {
+                          return;
+                        }
+
+                        var connectivityResult =
+                            await Connectivity().checkConnectivity();
+
+                        if (connectivityResult == ConnectivityResult.none) {
+                          setState(() {
+                            isSnackbarShown = true;
+                          });
+                          showCustomSnackbar(
+                              context, "Tidak Ada Koneksi Internet");
+                        } else if (passwordController.text.contains("<") ||
+                            passwordController.text.contains(">") ||
+                            passwordController.text.contains("script")) {
+                          setState(() {
+                            isSnackbarShown = false;
+                          });
+                          showCustomSnackbar(context, "Input Tidak Valid !");
+                        } else {
+                          setState(() {
+                            isSnackbarShown = false;
+                          });
+                          context.read<AuthBloc>().add(
+                                AuthUpdateUser(
+                                  UserEditFormModel(
+                                    nis: nisController.text,
+                                    nama_siswa: namasiswaController.text,
+                                    password: passwordController.text,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                        }
                       },
-                    ),
+                    )
                   ],
                 ),
               ),

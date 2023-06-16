@@ -28,7 +28,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: lightBackgroundColor,
+      resizeToAvoidBottomInset: false,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -37,23 +37,23 @@ class _OnboardingPageState extends State<OnboardingPage> {
               items: [
                 Image.asset(
                   'assets/payment.png',
-                  height: 331,
+                  height: MediaQuery.of(context).size.height / 3.5,
                 ),
 
                 //2
                 Image.asset(
                   'assets/notif.png',
-                  height: 331,
+                  height: MediaQuery.of(context).size.height / 3.5,
                 ),
 
                 //3
                 Image.asset(
                   'assets/hemat.png',
-                  height: 331,
+                  height: MediaQuery.of(context).size.height / 3.5,
                 ),
               ],
               options: CarouselOptions(
-                height: 331,
+                height: MediaQuery.of(context).size.height / 3.5,
                 viewportFraction: 1,
                 enableInfiniteScroll: false,
                 onPageChanged: (index, reason) {
@@ -71,18 +71,22 @@ class _OnboardingPageState extends State<OnboardingPage> {
             const SizedBox(
               height: 80,
             ),
+
+            //
             Container(
               margin: const EdgeInsets.symmetric(
-                horizontal: 25,
+                horizontal: 26,
               ),
               padding: const EdgeInsets.symmetric(
-                horizontal: 25,
-                vertical: 25,
+                horizontal: 22,
+                vertical: 22,
               ),
               decoration: BoxDecoration(
                 color: whiteColor,
                 borderRadius: BorderRadius.circular(20),
               ),
+
+              //
               child: Column(
                 children: [
                   Text(
@@ -115,8 +119,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
                             //
                             SizedBox(
-                              width: double.infinity,
-                              height: 24,
+                              width: MediaQuery.of(context).size.width / 3.5,
+                              height: MediaQuery.of(context).size.height / 11.5,
                               child: TextButton(
                                 onPressed: () {
                                   Navigator.pushNamedAndRemoveUntil(
@@ -138,8 +142,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       : Row(
                           children: [
                             Container(
-                              width: 12,
-                              height: 12,
+                              width: MediaQuery.of(context).size.width / 30,
+                              height: MediaQuery.of(context).size.height / 25,
                               margin: const EdgeInsets.only(
                                 right: 10,
                               ),
@@ -153,8 +157,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
                             //
                             Container(
-                              width: 12,
-                              height: 12,
+                              width: MediaQuery.of(context).size.width / 30,
+                              height: MediaQuery.of(context).size.height / 25,
                               margin: const EdgeInsets.only(
                                 right: 10,
                               ),
@@ -168,8 +172,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
                             //
                             Container(
-                              width: 12,
-                              height: 12,
+                              width: MediaQuery.of(context).size.width / 30,
+                              height: MediaQuery.of(context).size.height / 25,
                               margin: const EdgeInsets.only(
                                 right: 10,
                               ),
@@ -183,8 +187,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
                             const Spacer(),
                             SizedBox(
-                              width: 150,
-                              height: 50,
+                              width: MediaQuery.of(context).size.width / 3,
+                              height: MediaQuery.of(context).size.height / 19,
                               child: TextButton(
                                 onPressed: () {
                                   carouselController.nextPage();

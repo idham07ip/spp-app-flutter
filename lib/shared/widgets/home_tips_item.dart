@@ -1,35 +1,47 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:spp_app/shared/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class HomeTipsItem extends StatelessWidget {
+class HomeTipsItem extends StatefulWidget {
   final String imageUrl;
   final String title;
   final String url;
 
   const HomeTipsItem({
-    super.key,
+    Key? key,
     required this.imageUrl,
     required this.title,
     required this.url,
-  });
+  }) : super(key: key);
+
+  @override
+  _HomeTipsItemState createState() => _HomeTipsItemState();
+}
+
+class _HomeTipsItemState extends State<HomeTipsItem> {
+  bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        if (await canLaunch(url)) {
-          launch(url);
+        if (await canLaunch(widget.url)) {
+          launch(widget.url);
         }
       },
       child: Container(
-        width: 143,
-        height: 170,
+        height: MediaQuery.of(context).size.height / 6,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           color: whiteColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 7,
+              offset: Offset(0, 3), // changes position of shadow
+            ),
+          ],
         ),
         child: Column(
           children: [
@@ -38,26 +50,36 @@ class HomeTipsItem extends StatelessWidget {
                 top: Radius.circular(20),
               ),
               child: Image.asset(
-                imageUrl,
-                width: 143,
-                height: 90,
+                widget.imageUrl,
+                width: MediaQuery.of(context).size.width / 3.5,
+                height: MediaQuery.of(context).size.height / 11,
                 fit: BoxFit.cover,
               ),
             ),
             const SizedBox(
               height: 12,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-              ),
-              child: Text(
-                title,
-                style: blackTextStyle.copyWith(
-                  fontWeight: regular,
-                  overflow: TextOverflow.ellipsis,
+            Flexible(
+              // added Flexible widget
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
                 ),
-                maxLines: 2,
+                child: isExpanded
+                    ? Text(
+                        widget.title,
+                        style: blackTextStyle.copyWith(
+                          fontWeight: regular,
+                        ),
+                      )
+                    : Text(
+                        widget.title,
+                        style: blackTextStyle.copyWith(
+                          fontWeight: regular,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        maxLines: 2,
+                      ),
               ),
             ),
           ],

@@ -1,549 +1,628 @@
+// ignore_for_file: unused_local_variable, unused_import, unused_field
+
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:spp_app/blocs/auth/auth_bloc.dart';
-import 'package:spp_app/shared/theme.dart';
-import 'package:spp_app/shared/widgets/bank_item.dart';
-import 'package:spp_app/shared/widgets/buttons.dart';
-import 'package:spp_app/shared/widgets/forms.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:spp_app/blocs/pembayaran/pembayaran_bloc.dart';
+import 'package:spp_app/model/pembayaran_form_model.dart';
+import 'package:spp_app/model/price.dart';
+import 'package:spp_app/model/transaction_form_model.dart';
+import 'package:spp_app/shared/helpers.dart';
+import 'package:spp_app/shared/pages/payment_success.dart';
 import 'package:spp_app/shared/pages/snap_web_view_screen.dart';
+import 'package:spp_app/shared/theme.dart';
+import 'package:spp_app/shared/widgets/builder.dart';
+import 'package:spp_app/shared/widgets/buttons.dart';
+import 'package:spp_app/shared/widgets/custom_form_payments.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dotted_border/dotted_border.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:image_picker/image_picker.dart';
 
 class PaymentPage extends StatefulWidget {
-  const PaymentPage({super.key});
+  PaymentPage({
+    Key? key,
+    required this.data,
+    required this.transactions,
+  }) : super(key: key);
+  final PembayaranFormModel data;
+  final TransactionFormModel transactions;
 
   @override
   State<PaymentPage> createState() => _PaymentPageState();
 }
 
-class Payment {
-  final int id;
-  final String name;
+class _PaymentPageState extends State<PaymentPage>
+    with SingleTickerProviderStateMixin {
+  final payment = PembayaranFormModel();
+  bool _isLoading = true;
+  bool _hasInternetConnection = true;
+  final nisController = TextEditingController(text: '');
+  final namaController = TextEditingController(text: '');
+  final tingkatSekolahController = TextEditingController(text: '');
+  final jumlahPembayaranController = TextEditingController(text: '');
+  final keteranganPembayaranController = TextEditingController(text: '');
+  final kelasController = TextEditingController(text: '');
+  final tahunAkademik = TextEditingController(text: '');
+  final nominalController = TextEditingController(text: '');
+  late AnimationController loadingController;
+  bool isButtonDisabled = false;
 
-  Payment({
-    required this.id,
-    required this.name,
-  });
-}
+  File? _file;
+  PlatformFile? _platformFile;
 
-// //Month
-class Month {
-  final int id;
-  final String month;
+  void selectFile() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('No File Selected'),
+          content: Text('Please select an image file.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
 
-  Month({
-    required this.id,
-    required this.month,
-  });
-}
+    final File file = File(pickedFile.path);
+    final length = await file.length();
+    final name = file.path.split('/').last;
 
-//
-class _PaymentPageState extends State<PaymentPage> {
-  final namaController = TextEditingController();
-  final kategoriController = TextEditingController();
-  final bulanController = TextEditingController();
-  final tipeController = TextEditingController();
+    setState(() {
+      _platformFile = PlatformFile(
+        path: pickedFile.path,
+        name: name,
+        size: length,
+      );
+      isButtonDisabled = true;
+      showCustomSnackbar(context, 'Harap Tunggu Hingga Proses Selesai');
+    });
 
-  final TextEditingController _url = TextEditingController();
-  // //Multi Select Month
-  static final List<Month> _bulan = [
-    Month(id: 1, month: "Januari"),
-    Month(id: 2, month: "Februari"),
-    Month(id: 3, month: "Maret"),
-    Month(id: 4, month: "April"),
-    Month(id: 5, month: "Mei"),
-    Month(id: 6, month: "Juni"),
-    Month(id: 7, month: "Juli"),
-    Month(id: 8, month: "Agustus"),
-    Month(id: 9, month: "September"),
-    Month(id: 10, month: "Oktober"),
-    Month(id: 11, month: "November"),
-    Month(id: 12, month: "Desember"),
-  ];
-
-  final _items2 = _bulan
-      .map((month) => MultiSelectItem<Month>(month, month.month))
-      .toList();
-
-  final List<Month> _selectedMonths = [];
-  final List<Month> _selectedMonths2 = [];
-  final List<Month> _selectedMonths3 = [];
-  final List<Month> _selectedMonths4 = [];
-  final List<Month> _selectedMonths5 = [];
-  final List<Month> _selectedMonths6 = [];
-  final List<Month> _selectedMonths7 = [];
-  final List<Month> _selectedMonths8 = [];
-  final List<Month> _selectedMonths9 = [];
-  final List<Month> _selectedMonths10 = [];
-  final List<Month> _selectedMonths11 = [];
-  List<Month> _selectedMonths12 = [];
-
-  final _multiSelectKeyMonth = GlobalKey<FormFieldState>();
-
-  @override
-  void initStateMonth() {
-    _selectedMonths12 = _bulan;
-    super.initState();
+    loadingController.forward().then((_) {
+      setState(() {
+        isButtonDisabled = false;
+      });
+    });
   }
-  //
-
-  // MultiSelect Payment Start
-  static final List<Payment> _payments = [
-    Payment(id: 1, name: "SPP"),
-    Payment(id: 2, name: "Tabungan"),
-  ];
-
-  final _items = _payments
-      .map((payment) => MultiSelectItem<Payment>(payment, payment.name))
-      .toList();
-  final List<Payment> _selectedPayments = [];
-  List<Payment> _selectedPayments2 = [];
-
-  final _multiSelectKey = GlobalKey<FormFieldState>();
 
   @override
+  void dispose() {
+    loadingController.dispose();
+    super.dispose();
+  }
+
+  bool containsXSS(String input) {
+    // Daftar pola yang digunakan untuk mencocokkan serangan XSS
+    final xssPatterns = [
+      RegExp(r'<script[^>]*?>.*?<\/script>', caseSensitive: false),
+      RegExp(r'on\w+="[^"]*"', caseSensitive: false),
+      RegExp(r'on\w+=\[]' '^]*\'', caseSensitive: false),
+      RegExp(r'style=[^>]*expression[^>]*', caseSensitive: false),
+    ];
+
+    // Memeriksa apakah string mengandung pola serangan XSS
+    for (var pattern in xssPatterns) {
+      if (pattern.hasMatch(input)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   void initState() {
-    _selectedPayments2 = _payments;
+    loadingController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 8),
+    )..addListener(() {
+        setState(() {});
+      });
+
     super.initState();
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthSuccess) {
+      nisController.text = authState.user.nis!;
+      namaController.text = authState.user.nama_siswa!;
+      tingkatSekolahController.text = authState.user.instansi!;
+      kelasController.text = authState.user.kelas!;
+      tahunAkademik.text = authState.user.tahun_akademik!;
+    }
+
+    addAmount(String number) {
+      if (jumlahPembayaranController.text == '0') {
+        jumlahPembayaranController.text = '';
+      }
+      setState(() {
+        jumlahPembayaranController.text =
+            jumlahPembayaranController.text + number;
+      });
+    }
+  }
+
+  bool validate() {
+    if (nisController.text.isEmpty ||
+        namaController.text.isEmpty ||
+        tingkatSekolahController.text.isEmpty ||
+        nominalController.text.isEmpty ||
+        keteranganPembayaranController.text.isEmpty) {
+      return false;
+    }
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        if (state is AuthSuccess) {
-          return Scaffold(
-            appBar: AppBar(
-              backgroundColor: whiteColor,
-              toolbarHeight: 70,
-              title: const Text(
-                'Pembayaran',
-              ),
-            ),
-            body: ListView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-              ),
-              children: [
-                const SizedBox(
-                  height: 30,
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: whiteColor,
+        title: const Text('Form Payment'),
+      ),
+      body: BlocProvider(
+        create: (context) => PembayaranBloc(),
+        child: BlocConsumer<PembayaranBloc, PembayaranState>(
+          listener: (context, state) async {
+            print(state);
+            if (state is PembayaranFailed) {
+              showCustomSnackbar(context, state.e.toString());
+            }
+            if (state is PembayaranSuccess) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PaymentSuccessPage(),
                 ),
-
-                Text(
-                  'Nama Siswa',
-                  style: blackTextStyle.copyWith(
-                    fontSize: 16,
-                    fontWeight: semiBold,
+              );
+            }
+          },
+          builder: (context, state) {
+            if (state is PembayaranLoading) {
+              return Container(
+                child: Center(
+                  child: Image.asset(
+                    'assets/loading.gif',
+                    gaplessPlayback: true,
                   ),
                 ),
+              );
+            }
 
-                //
-                const SizedBox(
-                  height: 10,
+            return Padding(
+              padding: const EdgeInsets.all(19.5),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: whiteColor,
                 ),
-
-                //
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4.7,
-                    vertical: 4.7,
-                  ),
-                  decoration: BoxDecoration(
-                    color: whiteColor,
-                    borderRadius: BorderRadius.circular(
-                      17.8,
-                    ),
-                  ),
-
-                  //
-                  child: Center(
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          controller: namaController,
-                          style: TextStyle(
-                            fontWeight: bold,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: state.user.nama_siswa.toString(),
-                            border: InputBorder.none,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            contentPadding: const EdgeInsets.all(12),
-                            enabled: false,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(
-                  height: 30,
-                ),
-
-                //
-                Text(
-                  'Tingkat Sekolah',
-                  style: blackTextStyle.copyWith(
-                    fontSize: 16,
-                    fontWeight: semiBold,
-                  ),
-                ),
-
-                //
-                const SizedBox(
-                  height: 10,
-                ),
-
-                //
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4.7,
-                    vertical: 4.7,
-                  ),
-                  decoration: BoxDecoration(
-                    color: whiteColor,
-                    borderRadius: BorderRadius.circular(
-                      17.8,
-                    ),
-                  ),
-
-                  //
-                  child: Center(
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          controller: kategoriController,
-                          style: TextStyle(
-                            fontWeight: bold,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: state.user.kategori_sekolah.toString(),
-                            border: InputBorder.none,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            contentPadding: const EdgeInsets.all(12),
-                            enabled: false,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(
-                  height: 30,
-                ),
-
-                Text(
-                  'Pilih Kategori Pembayaran',
-                  style: blackTextStyle.copyWith(
-                    fontSize: 16,
-                    fontWeight: semiBold,
-                  ),
-                ),
-
-                const SizedBox(
-                  height: 15,
-                ),
-
-                //
-                SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: 10,
-                      ),
-                      MultiSelectDialogField(
-                        dialogHeight: 120,
-                        items: _items,
-                        title: Text("Kategori"),
-                        selectedColor: blackColor,
-                        decoration: BoxDecoration(
-                          color: whiteColor,
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          border: Border.all(
-                            color: greyColor,
-                            width: 2,
-                          ),
-                        ),
-                        buttonIcon: Icon(
-                          Icons.arrow_drop_down,
-                          color: blackColor,
-                        ),
-                        buttonText: Text(
-                          "Kategori Pembayaran",
-                          style: TextStyle(
-                            height: 2,
-                            color: greyColor,
-                            fontSize: 14,
-                            fontWeight: bold,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                        onConfirm: (results) {},
-                      ),
-                    ],
-                  ),
-                ),
-
-                //
-
-                //
-                const SizedBox(
-                  height: 30,
-                ),
-
-                Text(
-                  'Pilih Bulan Pembayaran',
-                  style: blackTextStyle.copyWith(
-                    fontSize: 16,
-                    fontWeight: semiBold,
-                  ),
-                ),
-
-                const SizedBox(
-                  height: 6,
-                ),
-
-                //
-                SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: 10,
-                      ),
-                      MultiSelectDialogField(
-                        dialogHeight: 240,
-                        items: _items2,
-                        title: Text(
-                          "Bulan",
-                        ),
-                        selectedColor: blackColor,
-                        decoration: BoxDecoration(
-                          color: whiteColor,
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          border: Border.all(
-                            color: greyColor,
-                            width: 2,
-                          ),
-                        ),
-                        buttonIcon: Icon(
-                          Icons.arrow_drop_down,
-                          color: blackColor,
-                        ),
-                        buttonText: Text(
-                          "Pilih Bulan",
-                          style: TextStyle(
-                            height: 2,
-                            color: greyColor,
-                            fontSize: 14,
-                            fontWeight: bold,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                        onConfirm: (results) {},
-                      ),
-                    ],
-                  ),
-                ),
-                //
-
-                const SizedBox(
-                  height: 30,
-                ),
-
-                //
-                Row(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   children: [
+                    const SizedBox(height: 30),
+                    Visibility(
+                      visible: false,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tahun Akademik',
+                            style: blackTextStyle.copyWith(
+                              fontSize: 16,
+                              fontWeight: semiBold,
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomFormName(
+                                readOnly: true,
+                                controller: tahunAkademik,
+                                hintText: '',
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // const SizedBox(height: 30),
+
+                    Visibility(
+                      visible: false,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Nomor Induk Siswa',
+                            style: blackTextStyle.copyWith(
+                              fontSize: 16,
+                              fontWeight: semiBold,
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomFormName(
+                                readOnly: true,
+                                controller: nisController,
+                                hintText: 'Masukkan Jumlah Pembayaran',
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Nama Siswa',
+                          style: blackTextStyle.copyWith(
+                            fontSize: 16,
+                            fontWeight: semiBold,
+                          ),
+                        ),
+                        CustomFormName(
+                            readOnly: true, controller: namaController),
+                      ],
+                    ),
+
+                    const SizedBox(height: 30),
                     Text(
-                      'Masukkan Nominal Pembayaran',
+                      'Tingkat Sekolah',
                       style: blackTextStyle.copyWith(
                         fontSize: 16,
                         fontWeight: semiBold,
                       ),
                     ),
+                    CustomFormName(
+                        readOnly: true, controller: tingkatSekolahController),
+                    const SizedBox(height: 16),
 
-                    //
-                    TextButton(
-                      onPressed: () => showDialog<String>(
-                        context: context,
-                        builder: (BuildContext context) => AlertDialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(13)),
+                    Text(
+                      'Nominal',
+                      style: blackTextStyle.copyWith(
+                        fontSize: 16,
+                        fontWeight: semiBold,
+                      ),
+                    ),
+                    CustomFormPaymentNumbers(
+                      readOnly: false,
+                      controller: nominalController,
+                      hintText: 'Masukkan Keterangan Pembayaran',
+                    ),
+                    const SizedBox(height: 16),
+
+                    //KETERANGAN PEMBAYARAN
+                    Row(
+                      children: [
+                        Text(
+                          'Keterangan Pembayaran',
+                          style: blackTextStyle.copyWith(
+                            fontSize: 16,
+                            fontWeight: semiBold,
                           ),
-                          title: const Text(
-                            'Informasi Jumlah Pembayaran',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w900,
-                              fontSize: 16,
-                            ),
-                          ),
-                          content: SingleChildScrollView(
-                            child: ListBody(
-                              children: const <Widget>[
-                                const Text(
-                                  'SPP',
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 14,
-                                  ),
-                                ),
+                        ),
 
-                                //
-                                const Text(
-                                  'TK = 250 RIBU / BULAN \nSD = 225 RIBU s/d 500 RIBU / BULAN \nSMP = 100 RIBU s/d 300 RIBU / BULAN \n PONDOK = 1 JT / BULAN',
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 12,
-                                  ),
+                        //
+                        TextButton(
+                          onPressed: () => showDialog<String>(
+                            context: context,
+                            builder: (BuildContext context) => AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(13)),
+                              ),
+                              title: const Text(
+                                'Informasi Keterangan Pembayaran',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 16,
                                 ),
+                              ),
+                              content: SingleChildScrollView(
+                                child: ListBody(
+                                  children: const <Widget>[
+                                    const Text(
+                                      'Masukan Keterangan Pembayaran Secara Spesifik Contoh Sebagai Berikut : \n',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                      ),
+                                    ),
 
+                                    //
+                                    const Text(
+                                      'Pembayaran Uang Bulanan Sekolah Arrahmah',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+
+                                    //
+                                  ],
+                                ),
+                              ),
+
+                              //
+                              actions: <Widget>[
                                 //
                                 const SizedBox(
-                                  height: 14,
+                                  height: 10,
                                 ),
-
-                                //Tabungan
-                                const Text(
-                                  'TABUNGAN',
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 14,
-                                  ),
+                                CustomFilledButton(
+                                  title: 'Tutup',
+                                  onPressed: () {
+                                    Navigator.pop(context, 'Tutup');
+                                  },
                                 ),
-
-                                //
-                                const Text(
-                                  'SD = 25 RIBU / BULAN',
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 12,
-                                  ),
+                                const SizedBox(
+                                  height: 10.5,
                                 ),
                               ],
                             ),
                           ),
-
-                          //
-                          actions: <Widget>[
-                            //
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            CustomFilledButton(
-                              title: 'Tutup',
-                              onPressed: () {
-                                Navigator.pop(context, 'Tutup');
-                              },
-                            ),
-                            const SizedBox(
-                              height: 10.5,
-                            ),
-                          ],
+                          child: const Icon(
+                            Icons.info_outline_rounded,
+                            color: Colors.greenAccent,
+                          ),
                         ),
-                      ),
-                      child: const Icon(
-                        Icons.info_outline_rounded,
-                        color: Colors.greenAccent,
-                      ),
+                      ],
                     ),
+
+                    CustomFormPayment(
+                      readOnly: false,
+                      controller: keteranganPembayaranController,
+                      hintText: 'Masukkan Keterangan Pembayaran',
+                    ),
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(
+                          height: 16,
+                        ),
+                        Text(
+                          'Upload Bukti Pembayaran',
+                          style: blackTextStyle.copyWith(
+                            fontSize: 16,
+                            fontWeight: semiBold,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Format File jpg dan png',
+                          style: TextStyle(
+                              fontSize: 15, color: Colors.grey.shade500),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        GestureDetector(
+                          onTap: selectFile,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 40.0, vertical: 20.0),
+                            child: DottedBorder(
+                              borderType: BorderType.RRect,
+                              radius: Radius.circular(10),
+                              dashPattern: [10, 4],
+                              strokeCap: StrokeCap.round,
+                              color: Colors.blue.shade400,
+                              child: Container(
+                                width: double.infinity,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.shade50.withOpacity(.3),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Iconsax.folder_open,
+                                      color: Colors.blue,
+                                      size: 40,
+                                    ),
+                                    SizedBox(
+                                      height: 15,
+                                    ),
+                                    Text(
+                                      'Pilih Foto',
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.grey.shade400),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        _platformFile != null
+                            ? Container(
+                                padding: EdgeInsets.all(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Selected File',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade400,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.shade200,
+                                            offset: Offset(0, 1),
+                                            blurRadius: 3,
+                                            spreadRadius: 2,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            child: Image.file(
+                                              File(_platformFile!.path!),
+                                              width: 70,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  _platformFile!.name,
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 5,
+                                                ),
+                                                Text(
+                                                  '${(_platformFile!.size / 1024).ceil()} KB',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.grey.shade500,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 5,
+                                                ),
+                                                isButtonDisabled
+                                                    ? LinearProgressIndicator(
+                                                        value: loadingController
+                                                            .value)
+                                                    : Row(
+                                                        children: [
+                                                          Text(
+                                                            'Selesai',
+                                                            style: TextStyle(
+                                                              fontSize: 13,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.green,
+                                                            ),
+                                                          ),
+                                                          Icon(
+                                                            Icons.check,
+                                                            color: Colors.green,
+                                                            size: 13,
+                                                          ),
+                                                        ],
+                                                      ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Container(),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 55,
+                    ),
+                    CustomFilledButton(
+                      title: 'Lanjut',
+                      onPressed: () async {
+                        var connectivityResult =
+                            await Connectivity().checkConnectivity();
+                        if (connectivityResult == ConnectivityResult.none) {
+                          showCustomSnackbar(
+                              context, 'Tidak Ada Koneksi Internet');
+                        } else {
+                          String keterangan =
+                              keteranganPembayaranController.text.trim();
+                          if (keterangan.isEmpty) {
+                            showCustomSnackbar(
+                                context, 'Keterangan tidak boleh kosong');
+                          } else if (keterangan.length > 140) {
+                            showCustomSnackbar(
+                                context, 'Keterangan terlalu panjang');
+                          } else if (containsXSS(keterangan)) {
+                            showCustomSnackbar(
+                                context, 'Keterangan tidak valid');
+                          } else {
+                            context.read<PembayaranBloc>().add(
+                                  PembayaranPost(
+                                    widget.data.copyWith(
+                                      tahun_akademik: tahunAkademik.text,
+                                      nis: nisController.text,
+                                      nama_siswa: namaController.text,
+                                      instansi: tingkatSekolahController.text,
+                                      nominal: nominalController.text,
+                                      keterangan:
+                                          keteranganPembayaranController.text,
+                                      image: _platformFile,
+                                    ),
+                                  ),
+                                );
+                            keteranganPembayaranController.clear();
+                            nominalController.clear();
+                            setState(() {
+                              _platformFile = null;
+                            });
+                          }
+                        }
+                      },
+                    ),
+
+                    const SizedBox(height: 57),
                   ],
                 ),
-
-                const SizedBox(
-                  height: 18,
-                ),
-
-                //Jumlah Pembayaran
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4.6,
-                    vertical: 4.6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: whiteColor,
-                    borderRadius: BorderRadius.circular(
-                      16.8,
-                    ),
-                  ),
-                  // padding: EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      //
-                      TextFormField(
-                        style: TextStyle(
-                          fontWeight: bold,
-                        ),
-                        decoration: new InputDecoration(
-                          labelText: "Jumlah Pembayaran",
-                          prefixIcon: Text(
-                            '  Rp',
-                            style: blackTextStyle.copyWith(
-                              height: 2.5,
-                              fontSize: 16,
-                              fontWeight: bold,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(width: 2),
-                            borderRadius: BorderRadius.circular(19),
-                          ),
-                          contentPadding: const EdgeInsets.all(19),
-                          enabled: true,
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(
-                  height: 24,
-                ),
-
-                //
-                CustomFilledButton(
-                  title: 'Bayar',
-                  onPressed: () async {
-                    String url;
-                    url =
-                        "https://app.midtrans.com/payment-links/1680155296864";
-
-                    Navigator.of(context).pushNamed(
-                      SnapWebViewScreen.routeName,
-                      arguments: {
-                        'url': url,
-                      },
-                    );
-                  },
-                ),
-
-                const SizedBox(
-                  height: 57,
-                ),
-              ],
-            ),
-          );
-        }
-        return Container();
-      },
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

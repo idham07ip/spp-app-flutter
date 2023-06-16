@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spp_app/blocs/auth/auth_bloc.dart';
 import 'package:spp_app/shared/helpers.dart';
 import 'package:spp_app/shared/theme.dart';
-import 'package:spp_app/shared/widgets/buttons.dart';
 import 'package:spp_app/shared/widgets/profile_menu_item.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -27,13 +26,18 @@ class ProfilePage extends StatelessWidget {
           }
 
           if (state is AuthFailed) {
-            showCustomSnackbar(context, state.e);
+            showCustomSnackBar(context, state.e);
           }
         },
         builder: (context, state) {
           if (state is AuthLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
+            return Container(
+              child: Center(
+                child: Image.asset(
+                  'assets/loading.gif',
+                  gaplessPlayback: true,
+                ),
+              ),
             );
           }
 
@@ -110,12 +114,6 @@ class ProfilePage extends StatelessWidget {
                         onTap: () async {
                           Navigator.pushNamed(context, '/profile-edit');
                         },
-                      ),
-
-                      ProfileMenuItem(
-                        iconUrl: 'assets/ic_help.png',
-                        title: 'Help Center',
-                        onTap: () {},
                       ),
 
                       //

@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:spp_app/model/sign_in_form_model.dart';
 import 'package:spp_app/model/user_edit_form_model.dart';
@@ -7,18 +7,23 @@ import 'package:spp_app/model/user_model.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  static const String baseUrl = 'http://192.168.56.1/api_spp/api/';
+  static const String baseUrl = 'https://arrahman.site/api_spp/api';
+  static const String token = 'KE9NDFUZ7KO2XNG43QQXVMIFKOL4L7H9';
 
   Future<void> updateUser(UserEditFormModel data) async {
     try {
       final res = await http.post(
         Uri.parse('$baseUrl/update'),
         body: data.toJson(),
+        headers: {'Authorization': 'Bearer $token'},
       );
 
       print(res.body);
 
-      if (res.statusCode != 200 || res.statusCode != 201) {}
+      if (res.statusCode != 200 || res.statusCode != 201) {
+      } else {
+        jsonDecode(res.body)['message'];
+      }
     } catch (e) {
       rethrow;
     }
@@ -31,9 +36,8 @@ class AuthService {
           '$baseUrl/login',
         ),
         body: data.toJson(),
+        headers: {'Authorization': 'Bearer $token'},
       );
-
-      print(res.body);
 
       if (res.statusCode == 200 || res.statusCode == 201) {
         final user = UserModel.fromJson(jsonDecode(res.body));
@@ -42,11 +46,17 @@ class AuthService {
         await storeCredentialToLocal(user);
 
         return user;
+      } else if (res.statusCode == 403) {
+        throw Exception('Invalid credentials');
       } else {
-        throw 'Invalid Email And Password';
+        throw Exception('Failed to login');
       }
+    } on HandshakeException catch (e) {
+      throw Exception('Handshake error: ${e.toString()}');
+    } on SocketException {
+      throw Exception('Network error');
     } catch (e) {
-      rethrow;
+      throw Exception(e.toString());
     }
   }
 
@@ -56,8 +66,7 @@ class AuthService {
       await storage.write(key: 'nis', value: user.nis);
       await storage.write(key: 'nama_siswa', value: user.nama_siswa);
       await storage.write(key: 'password', value: user.password);
-      await storage.write(
-          key: 'kategori_sekolah', value: user.kategori_sekolah);
+      await storage.write(key: 'kategori_sekolah', value: user.kelas);
     } catch (e) {
       rethrow;
     }
@@ -78,7 +87,7 @@ class AuthService {
 
         return data;
       } else {
-        throw 'Please Do Login Again';
+        throw Exception('Please Do Login Again');
       }
     } catch (e) {
       rethrow;

@@ -18,7 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           final res = await AuthService().login(event.data);
           emit(AuthSuccess(res));
         } catch (e) {
-          AuthFailed(e.toString());
+          emit(AuthFailed(e.toString()));
         }
       }
 
@@ -48,6 +48,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             await AuthService().updateUser(event.data);
 
             emit(AuthSuccess(updatedUser));
+          } else {
+            throw Exception('Invalid state');
           }
         } catch (e) {
           emit(AuthFailed(e.toString()));

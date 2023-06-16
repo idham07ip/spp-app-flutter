@@ -26,6 +26,9 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
+       tasks.withType(JavaCompile) {
+        options.compilerArgs.add('-Xlint:deprecation')
+    }
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 

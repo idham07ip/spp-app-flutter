@@ -1,15 +1,39 @@
-import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:spp_app/shared/theme.dart';
 
-void showCustomSnackbar(BuildContext context, String message) {
-  Flushbar(
-    message: message,
-    flushbarPosition: FlushbarPosition.TOP,
-    backgroundColor: redColor,
-    duration: const Duration(seconds: 2),
-  ).show(context);
+void showCustomSnackBar(BuildContext context, String message, {Widget? icon}) {
+  Future.delayed(Duration(milliseconds: 500)).then((_) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            if (icon != null) icon,
+            SizedBox(width: 8),
+            Text(message),
+          ],
+        ),
+        backgroundColor: Colors.red,
+      ),
+    );
+  });
+}
+
+Future<void> showCustomSnackbar(BuildContext context, String message,
+    {Widget? icon}) async {
+  Future.delayed(Duration(milliseconds: 500)).then((_) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.white),
+            SizedBox(width: 8),
+            Text(message),
+          ],
+        ),
+        backgroundColor: Colors.red,
+      ),
+    );
+  });
 }
 
 String formatCurrency(num number) {

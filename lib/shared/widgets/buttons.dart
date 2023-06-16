@@ -79,6 +79,46 @@ class CustomDetailPaymentButton extends StatelessWidget {
   }
 }
 
+//
+class CustomPaymentButton extends StatelessWidget {
+  final String title;
+  final double width;
+  final double height;
+  final VoidCallback? onPressed;
+
+  const CustomPaymentButton({
+    Key? key,
+    required this.title,
+    this.width = 0,
+    this.height = 50,
+    this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width / 2,
+      height: MediaQuery.of(context).size.height / 18,
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          backgroundColor: greenColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(56),
+          ),
+        ),
+        child: Text(
+          title,
+          style: whiteTextStyle.copyWith(
+            fontSize: 16,
+            fontWeight: semiBold,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class CustomFilledButton extends StatelessWidget {
   final String title;
   final double width;
