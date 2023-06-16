@@ -256,7 +256,7 @@ class _PaymentPageState extends State<PaymentPage>
                               CustomFormName(
                                 readOnly: true,
                                 controller: nisController,
-                                hintText: 'Masukkan Jumlah Pembayaran',
+                                hintText: 'Masukkan Nomor Induk Siswa',
                               ),
                             ],
                           ),
@@ -301,7 +301,7 @@ class _PaymentPageState extends State<PaymentPage>
                     CustomFormPaymentNumbers(
                       readOnly: false,
                       controller: nominalController,
-                      hintText: 'Masukkan Keterangan Pembayaran',
+                      hintText: 'Masukkan Nominal Pembayaran',
                     ),
                     const SizedBox(height: 16),
 

@@ -121,7 +121,22 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24),
+
+        //SEARCH FEATURE
         children: [
+          Column(
+            children: [
+              const SizedBox(
+                height: 15,
+              ),
+              const TextField(
+                decoration: InputDecoration(
+                  labelText: 'Search',
+                  suffixIcon: Icon(Icons.search),
+                ),
+              ),
+            ],
+          ),
           buildFilteredTransactions(filteredTransactions),
         ],
       ),
@@ -201,7 +216,7 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
             child: HomeLatestTransactionItem(
               iconUrl: AppAssets.transactionIconUrl,
-              title: 'Foto Bukti Transfer Pembayaran',
+              title: transaction.keterangan!,
               transactions: transaction,
               onTap: () {
                 Navigator.push(
