@@ -303,7 +303,6 @@ class _PaymentPageState extends State<PaymentPage>
                   borderRadius: BorderRadius.circular(20),
                   color: whiteColor,
                 ),
-<<<<<<< HEAD
                 child: StreamBuilder<UserModel?>(
                   stream: getUserStream(nisController.text),
                   builder: (context, snapshot) {
@@ -313,75 +312,6 @@ class _PaymentPageState extends State<PaymentPage>
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.green),
                           strokeWidth: 3,
-=======
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  children: [
-                    const SizedBox(height: 30),
-                    Visibility(
-                      visible: false,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Tahun Akademik',
-                            style: blackTextStyle.copyWith(
-                              fontSize: 16,
-                              fontWeight: semiBold,
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomFormName(
-                                readOnly: true,
-                                controller: tahunAkademik,
-                                hintText: '',
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // const SizedBox(height: 30),
-
-                    Visibility(
-                      visible: false,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Nomor Induk Siswa',
-                            style: blackTextStyle.copyWith(
-                              fontSize: 16,
-                              fontWeight: semiBold,
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomFormName(
-                                readOnly: true,
-                                controller: nisController,
-                                hintText: 'Masukkan Nomor Induk Siswa',
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Nama Siswa',
-                          style: blackTextStyle.copyWith(
-                            fontSize: 16,
-                            fontWeight: semiBold,
-                          ),
->>>>>>> 1567250810d5543fafa1561ea917c9312c081cb3
                         ),
                       );
                     } else if (snapshot.hasError) {
@@ -400,7 +330,6 @@ class _PaymentPageState extends State<PaymentPage>
                       namaController.text = user.nama_siswa ?? '';
                       tingkatSekolahController.text = user.kelas ?? '';
 
-<<<<<<< HEAD
                       // Continue with the rest of your widgets
                       return ListView(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -416,48 +345,6 @@ class _PaymentPageState extends State<PaymentPage>
                                     fontSize: 16,
                                     fontWeight: semiBold,
                                   ),
-=======
-                    Text(
-                      'Nominal',
-                      style: blackTextStyle.copyWith(
-                        fontSize: 16,
-                        fontWeight: semiBold,
-                      ),
-                    ),
-                    CustomFormPaymentNumbers(
-                      readOnly: false,
-                      controller: nominalController,
-                      hintText: 'Masukkan Nominal Pembayaran',
-                    ),
-                    const SizedBox(height: 16),
-
-                    //KETERANGAN PEMBAYARAN
-                    Row(
-                      children: [
-                        Text(
-                          'Keterangan Pembayaran',
-                          style: blackTextStyle.copyWith(
-                            fontSize: 16,
-                            fontWeight: semiBold,
-                          ),
-                        ),
-
-                        //
-                        TextButton(
-                          onPressed: () => showDialog<String>(
-                            context: context,
-                            builder: (BuildContext context) => AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(13)),
-                              ),
-                              title: const Text(
-                                'Informasi Keterangan Pembayaran',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 16,
->>>>>>> 1567250810d5543fafa1561ea917c9312c081cb3
                                 ),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -465,13 +352,41 @@ class _PaymentPageState extends State<PaymentPage>
                                     CustomFormName(
                                       readOnly: true,
                                       controller: tahunAkademik,
-                                      hintText: 'Now Loading...',
+                                      hintText: '',
                                     ),
                                   ],
                                 ),
                               ],
                             ),
                           ),
+                          Visibility(
+                            visible:
+                                false, // Change to true if you want to show this section conditionally
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Nomor Induk Siswa',
+                                  style: blackTextStyle.copyWith(
+                                    fontSize: 16,
+                                    fontWeight: semiBold,
+                                  ),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CustomFormName(
+                                      readOnly: true,
+                                      controller: nisController,
+                                      hintText: 'Masukkan Nomor Induk Siswa',
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          //KETERANGAN PEMBAYARAN
                           const SizedBox(height: 20),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

@@ -230,7 +230,6 @@ class _NotificationPageState extends State<NotificationPage> {
 
         //SEARCH FEATURE
         children: [
-<<<<<<< HEAD
           Visibility(
             visible: isSearchVisible,
             child: Padding(
@@ -291,22 +290,6 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
           ),
           buildFilteredTransactions(),
-=======
-          Column(
-            children: [
-              const SizedBox(
-                height: 15,
-              ),
-              const TextField(
-                decoration: InputDecoration(
-                  labelText: 'Search',
-                  suffixIcon: Icon(Icons.search),
-                ),
-              ),
-            ],
-          ),
-          buildFilteredTransactions(filteredTransactions),
->>>>>>> 1567250810d5543fafa1561ea917c9312c081cb3
         ],
       ),
     );
@@ -419,11 +402,7 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
             child: HomeLatestTransactionItem(
               iconUrl: AppAssets.transactionIconUrl,
-<<<<<<< HEAD
               title: "Upload Bukti Pembayaran",
-=======
-              title: transaction.keterangan!,
->>>>>>> 1567250810d5543fafa1561ea917c9312c081cb3
               transactions: transaction,
               onTap: () {
                 Navigator.push(
