@@ -14,7 +14,7 @@ class GetdateBloc extends Bloc<GetdateEvent, GetdateState> {
           emit(GetdateLoading());
 
           final transactions = await PaymentMethodService()
-              .getTransactionDate(event.nis, event.startDate, event.endDate);
+              .getTransactionDate(event.nipd, event.startDate, event.endDate);
 
           emit(GetdateSuccess(transactions));
         } catch (e) {

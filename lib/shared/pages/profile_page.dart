@@ -2,18 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spp_app/blocs/auth/auth_bloc.dart';
 import 'package:spp_app/shared/helpers.dart';
+import 'package:spp_app/shared/pages/notification_page.dart';
 import 'package:spp_app/shared/theme.dart';
 import 'package:spp_app/shared/widgets/profile_menu_item.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final nisController = TextEditingController(text: '');
+
+  @override
+  void initState() {
+    super.initState();
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthSuccess) {
+      nisController.text = authState.user.nipd!;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Setting Profile',
+          'Profile',
         ),
       ),
 
@@ -33,9 +50,9 @@ class ProfilePage extends StatelessWidget {
           if (state is AuthLoading) {
             return Container(
               child: Center(
-                child: Image.asset(
-                  'assets/loading.gif',
-                  gaplessPlayback: true,
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                  strokeWidth: 3,
                 ),
               ),
             );
@@ -116,6 +133,18 @@ class ProfilePage extends StatelessWidget {
                         },
                       ),
 
+                      ProfileMenuItem(
+                        iconUrl: 'assets/ic_statistic.png',
+                        title: 'Arsip History',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NotificationPage(),
+                            ),
+                          );
+                        },
+                      ),
                       //
                       ProfileMenuItem(
                         iconUrl: 'assets/ic_logout.png',

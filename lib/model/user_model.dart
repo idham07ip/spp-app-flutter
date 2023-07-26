@@ -1,19 +1,19 @@
 class UserModel {
   String? nama_siswa;
-  String? nis;
+  String? nipd;
   String? kelas;
   String? instansi;
-  String? tahun_akademik;
+  String? thn_akademik;
   String? password;
   String? status;
   String? role_id;
 
   UserModel({
     this.nama_siswa,
-    this.nis,
+    this.nipd,
     this.kelas,
     this.instansi,
-    this.tahun_akademik,
+    this.thn_akademik,
     this.password,
     this.status,
     this.role_id,
@@ -21,11 +21,11 @@ class UserModel {
 
   UserModel.fromJson(Map<String, dynamic> json) {
     nama_siswa = json['nama_siswa'];
-    nis = json['nis'];
+    nipd = json['nipd'];
     kelas = json['kelas'];
     instansi = json['instansi'];
     instansi = json['instansi'];
-    tahun_akademik = json['tahun_akademik'];
+    thn_akademik = json['thn_akademik'];
     password = json['password'];
     status = json['status'];
     role_id = json['role_id'];
@@ -34,11 +34,11 @@ class UserModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['nama_siswa'] = nama_siswa;
-    data['nis'] = nis;
+    data['nipd'] = nipd;
     data['kelas'] = kelas;
     data['instansi'] = instansi;
     data['instansi'] = instansi;
-    data['tahun_akademik'] = tahun_akademik;
+    data['thn_akademik'] = thn_akademik;
     data['password'] = password;
     data['status'] = status;
     data['role_id'] = role_id;
@@ -47,18 +47,20 @@ class UserModel {
 
   UserModel copyWith({
     String? nama_siswa,
-    String? nis,
+    String? nipd,
     String? kelas,
     String? instansi,
-    String? tahun_akademik,
+    String? thn_akademik,
     String? password,
+    String? status,
   }) =>
       UserModel(
         nama_siswa: nama_siswa ?? this.nama_siswa,
-        nis: nis ?? this.nis,
+        nipd: nipd ?? this.nipd,
         kelas: kelas ?? this.kelas,
         instansi: instansi ?? this.instansi,
-        tahun_akademik: tahun_akademik ?? this.tahun_akademik,
+        thn_akademik: thn_akademik ?? this.thn_akademik,
         password: password ?? this.password,
+        status: status ?? this.status,
       );
 }

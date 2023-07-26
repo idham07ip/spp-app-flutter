@@ -17,6 +17,12 @@ class AuthLogin extends AuthEvent {
 
 class AuthLogout extends AuthEvent {}
 
+class AuthUpdateTahunAkademik extends AuthEvent {
+  final String tahunAkademik;
+
+  AuthUpdateTahunAkademik(this.tahunAkademik);
+}
+
 class AuthGetCurrentUser extends AuthEvent {}
 
 class AuthUpdateUser extends AuthEvent {

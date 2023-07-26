@@ -1,9 +1,11 @@
 // ignore_for_file: unused_import
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:newrelic_mobile/config.dart';
 import 'package:spp_app/blocs/auth/auth_bloc.dart';
 import 'package:spp_app/service/local_notification.dart';
 import 'package:spp_app/shared/pages/home_page.dart';
@@ -16,23 +18,29 @@ import 'package:spp_app/shared/pages/profile_edit_pin_page.dart';
 import 'package:spp_app/shared/pages/profile_edit_success_page.dart';
 import 'package:spp_app/shared/pages/profile_page.dart';
 import 'package:spp_app/shared/pages/splash_page.dart';
+import 'package:spp_app/shared/pages/statistic_page.dart';
 import 'package:spp_app/shared/theme.dart';
 import 'shared/pages/snap_web_view_screen.dart';
+import 'package:newrelic_mobile/newrelic_mobile.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationLocal.initialize();
-  await NotificationLocal.scheduleNotification();
-  await NotificationLocal.scheduleNotificationNews();
+  final notificationLocal = NotificationLocal();
+  await notificationLocal.notificationAlert();
+  await notificationLocal.scheduleRepeatingNotifications();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  // Memulai aplikasi dengan New Relic
+  // startAppWithNewRelic();
+
   runApp(const MyApp());
   Timer.periodic(const Duration(minutes: 1), (Timer t) {
     final now = DateTime.now();
     final fifteenMinutesAgo = now.subtract(const Duration(minutes: 60));
     if (lastUserInteraction.isBefore(fifteenMinutesAgo)) {
       // Clear storage and logout user
-      clearStorageAndLogout(navigatorKey
-          .currentContext); // ubah argumen context menjadi navigatorKey.currentContext
+      clearStorageAndLogout(navigatorKey.currentContext!);
       // Restart app
       runApp(const MyApp());
     }
@@ -42,6 +50,16 @@ void main() async {
 final navigatorKey = GlobalKey<NavigatorState>();
 late BuildContext appContext;
 DateTime lastUserInteraction = DateTime.now();
+var appToken = "";
+
+void clearStorageAndLogout(BuildContext context) async {
+  const storage = FlutterSecureStorage();
+  await storage.deleteAll();
+  print('Storage cleared!');
+
+  // Navigate to login page
+  Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -91,18 +109,10 @@ class MyApp extends StatelessWidget {
                 const ProfileEditSuccessPage(),
             '/snap-webview': (context) => const SnapWebViewScreen(),
             '/notification': (context) => const NotificationPage(),
+            '/charts': (context) => PieChartSample1(),
           },
         ),
       ),
     );
   }
-}
-
-void clearStorageAndLogout(BuildContext? context) async {
-  const storage = FlutterSecureStorage();
-  await storage.deleteAll();
-  print('Storage cleared!');
-
-  // Navigate to login page
-  Navigator.pushNamedAndRemoveUntil(context!, '/login', (route) => false);
 }

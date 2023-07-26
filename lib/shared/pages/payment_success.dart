@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:flutter/material.dart';
 import 'package:spp_app/shared/theme.dart';
 
@@ -36,29 +38,12 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage>
     super.dispose();
   }
 
-  void _onBackPressed() {
-    if (_isLoading) return;
-    setState(() {
-      _isLoading = true;
-    });
-    Future.delayed(Duration(seconds: 5), () {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/home',
-        (route) => false,
-      );
-      setState(() {
-        _isLoading = false;
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        Navigator.popUntil(context, ModalRoute.withName('/home'));
-        return true;
+        Navigator.pushReplacementNamed(context, '/notification');
+        return false;
       },
       child: Scaffold(
         body: AnimatedBuilder(

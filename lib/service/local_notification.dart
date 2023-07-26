@@ -64,60 +64,87 @@ class NotificationLocal {
     );
   }
 
-  static Future<void> scheduleNotificationNews() async {
-    await initialize();
-    tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
+  Future<void> scheduleRepeatingNotifications() async {
+    final FlutterLocalNotificationsPlugin notifications =
+        FlutterLocalNotificationsPlugin();
 
-    final now = tz.TZDateTime.now(tz.local);
-    final scheduledDate = tz.TZDateTime(
+    await notifications.zonedSchedule(
+      0,
+      'Arrahmah Boarding School Bogor',
+      'Periksa grafik performa kamu di bagian profil untuk melihat perkembangan terbaru.',
+      _nextNotificationTime(),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'weekly_channel',
+          'Weekly Channel'
+              'Channel for weekly notifications',
+        ),
+      ),
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+      payload: 'weekly_notification',
+    );
+  }
+
+  tz.TZDateTime _nextNotificationTime() {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
       now.month,
       now.day,
       8,
       0,
-    ).add(Duration(days: 2));
+    );
 
-    await _notifications.zonedSchedule(
+    while (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 7));
+    }
+
+    return scheduledDate;
+  }
+
+  Future<void> notificationAlert() async {
+    final FlutterLocalNotificationsPlugin notifications =
+        FlutterLocalNotificationsPlugin();
+
+    await notifications.zonedSchedule(
       0,
       'Arrahmah Boarding School Bogor',
-      'Assalamuaikum Ayah Bunda Kami Menyediakan Update Top Berita Setiap Harinya Secara Realtime Dan Yang Pasti nya AntiHoax 👍',
-      scheduledDate,
-      await _notificationDetails(
-          'Assalamuaikum Ayah Bunda Kami Menyediakan Update Top Berita Setiap Harinya Secara Realtime Dan Yang Pasti nya AntiHoax 👍'),
+      'Kami mengingatkan kamu untuk selalu membayar SPP tepat waktu. Terima kasih atas perhatiannya. 😊 ',
+      _nextNotificationMonth(),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'weekly_channel',
+          'Weekly Channel'
+              'Channel for weekly notifications',
+        ),
+      ),
+      androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      androidAllowWhileIdle: true,
       matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-      payload: 'test payload',
+      payload: 'weekly_notification',
     );
   }
 
-  static Future<void> scheduleNotification() async {
-    await initialize();
-    tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
-
-    final now = tz.TZDateTime.now(tz.local);
-    final scheduledDate = tz.TZDateTime(
+  tz.TZDateTime _nextNotificationMonth() {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
-      now.month < 12 ? now.month + 1 : 1,
-      10,
+      now.month,
+      now.day,
+      8,
       0,
     );
 
-    await _notifications.zonedSchedule(
-      0,
-      'Arrahmah Boarding School Bogor',
-      'Assalamualaikum Ayah Bunda, Kami Ingin Mengingatkan Jangan Lupa Untuk Melakukan Pembayaran Setiap Bulannya 😊 ',
-      scheduledDate,
-      await _notificationDetails(
-          'Assalamualaikum Ayah Bunda, Kami Ingin Mengingatkan Jangan Lupa Untuk Melakukan Pembayaran Setiap Bulannya 😊'),
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      androidAllowWhileIdle: true,
-      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-      payload: 'test payload',
-    );
+    while (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 20));
+    }
+
+    return scheduledDate;
   }
 }

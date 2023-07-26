@@ -1,17 +1,17 @@
 class UserEditFormModel {
-  final String? nis;
+  final String? nipd;
   final String? nama_siswa;
   final String? password;
 
   UserEditFormModel({
-    this.nis,
+    this.nipd,
     this.nama_siswa,
     this.password,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'nis': nis,
+      'nipd': nipd,
       'nama_siswa': nama_siswa,
       'password': password,
     };

@@ -35,12 +35,20 @@ class PembayaranBloc extends Bloc<PembayaranEvent, PembayaranState> {
         } catch (e) {
           print('Error during payment: $e');
           emit(PembayaranFailed(e.toString()));
+          // Tambahkan notifikasi khusus untuk kesalahan (error)
+          final bodyText = '$e, Terimakasih 😊';
+          await NotificationLocal.showNotification(
+            id: 0,
+            title: 'Arrahmah Boarding School Bogor',
+            body: bodyText,
+            payload: 'arrahman',
+          );
         }
 
         if (state is! PembayaranFailed) {
           // Notifikasi hanya ditampilkan jika tidak terjadi kesalahan
           final bodyText =
-              'Terimakasih Sudah Melakukan Pembayaran, Kami Doakan Semoga Ayah Bunda Sehat Selalu Ya 😊';
+              'Terimakasih kamu sudah melakukan pembayaran SPP. Semoga Allah membalas kebaikan dan kesungguhan kamu dalam menunaikan kewajiban ini 😊';
           await NotificationLocal.showNotification(
             id: 0,
             title: 'Arrahmah Boarding School Bogor',

@@ -4,14 +4,18 @@ import 'dart:async';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:spp_app/blocs/auth/auth_bloc.dart';
 import 'package:spp_app/model/pembayaran_form_model.dart';
 import 'package:spp_app/model/quotes_form_model.dart';
 import 'package:spp_app/model/transaction_form_model.dart';
+import 'package:spp_app/model/user_model.dart';
 import 'package:spp_app/service/kata_motivasi.dart';
 import 'package:spp_app/shared/pages/notification_page.dart';
 import 'package:spp_app/shared/pages/payment_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spp_app/shared/pages/profile_page.dart';
+import 'package:spp_app/shared/pages/statistic_page.dart';
 import 'package:spp_app/shared/theme.dart';
 import 'package:spp_app/shared/pages/content_page.dart';
 import 'package:double_back_to_close_app/double_back_to_close_app.dart';
@@ -27,6 +31,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final namaController = TextEditingController(text: '');
+  final kelasController = TextEditingController(text: '');
+  TextEditingController nisController = TextEditingController();
+  TextEditingController tingkatController = TextEditingController();
   int _selectedTabIndex = 0;
   bool _hasInternetConnection = true;
   late StreamSubscription<InternetConnectionStatus> _connectionSubscription;
@@ -43,8 +51,15 @@ class _HomePageState extends State<HomePage> {
       });
     });
 
-    // Load cached data for tab 1
     _loadCachedData();
+
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthSuccess) {
+      nisController.text = authState.user.nipd ?? '';
+      namaController.text = authState.user.nama_siswa ?? '';
+      tingkatController.text = authState.user.instansi ?? '';
+      kelasController.text = authState.user.kelas ?? '';
+    }
   }
 
   @override
@@ -77,6 +92,7 @@ class _HomePageState extends State<HomePage> {
 
   final payment = PembayaranFormModel();
   final transactions = TransactionFormModel();
+  final user = UserModel();
 
   @override
   Widget build(BuildContext context) {
@@ -86,12 +102,15 @@ class _HomePageState extends State<HomePage> {
         isFuture: _motivasiFuture, // Pass the future to ContentPage
       ),
       // Pembayaran Tab 2
+
+      // PaymentChekout(),
       PaymentPage(
         data: payment,
         transactions: transactions,
       ),
-      // Notifikasi Tab 3
-      NotificationPage(),
+      // // Notifikasi Tab 3
+      // NotificationPage(),
+      PieChartSample1(),
       // Setting Profile Tab 4
       ProfilePage(),
     ];
@@ -102,16 +121,16 @@ class _HomePageState extends State<HomePage> {
         label: 'Beranda',
       ),
       BottomNavigationBarItem(
-        icon: Icon(Icons.payment),
-        label: 'Pembayaran',
+        icon: Icon(Icons.camera),
+        label: 'Upload',
       ),
       BottomNavigationBarItem(
-        icon: Icon(Icons.archive_sharp),
-        label: 'History',
+        icon: Icon(Icons.graphic_eq_outlined),
+        label: 'Statistic',
       ),
       BottomNavigationBarItem(
-        icon: Icon(Icons.settings_suggest),
-        label: 'Setting',
+        icon: Icon(Icons.person),
+        label: 'Profile',
       ),
     ];
 

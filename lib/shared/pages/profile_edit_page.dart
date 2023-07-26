@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spp_app/blocs/auth/auth_bloc.dart';
 import 'package:spp_app/model/user_edit_form_model.dart';
 import 'package:spp_app/shared/helpers.dart';
+import 'package:spp_app/shared/pages/profile_edit_success_page.dart';
 import 'package:spp_app/shared/theme.dart';
 import 'package:spp_app/shared/widgets/buttons.dart';
 import 'package:spp_app/shared/widgets/forms.dart';
@@ -31,7 +32,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     super.initState();
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthSuccess) {
-      nisController.text = authState.user.nis!;
+      nisController.text = authState.user.nipd!;
       namasiswaController.text = authState.user.nama_siswa!;
       passwordController.text = authState.user.password!;
     }
@@ -48,33 +49,26 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthFailed) {
-            if (state.e.toString().contains('Connection timed out')) {
-              if (state.e.toString().contains(
-                  'New password must be different from old password')) {
-                if (!isSnackbarShown) {
-                  showCustomSnackBar(context,
-                      'New password must be different from old password');
-                  isSnackbarShown = true;
-                }
-              } else {
-                if (!isSnackbarShown) {
-                  showCustomSnackBar(context,
-                      'Koneksi timeout. Mohon periksa koneksi internet Anda.');
-                  isSnackbarShown = true;
-                }
-              }
-            } else {
-              if (!isSnackbarShown) {
-                showCustomSnackBar(context, state.e.toString());
-                isSnackbarShown = true;
-              }
+          } else {
+            if (state is AuthSuccess) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileEditSuccessPage(),
+                ),
+              );
             }
-          } else if (state is AuthSuccess) {}
+          }
         },
         builder: (context, state) {
           if (state is AuthLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                  strokeWidth: 3,
+                ),
+              ),
             );
           }
           return ListView(
@@ -131,7 +125,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         if (isSnackbarShown) {
                           return;
                         }
-
                         var connectivityResult =
                             await Connectivity().checkConnectivity();
 
@@ -155,7 +148,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                           context.read<AuthBloc>().add(
                                 AuthUpdateUser(
                                   UserEditFormModel(
-                                    nis: nisController.text,
+                                    nipd: nisController.text,
                                     nama_siswa: namasiswaController.text,
                                     password: passwordController.text,
                                   ),

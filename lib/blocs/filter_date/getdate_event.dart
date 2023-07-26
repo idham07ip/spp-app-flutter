@@ -8,16 +8,16 @@ abstract class GetdateEvent extends Equatable {
 }
 
 class Getdatefilter extends GetdateEvent {
-  final String nis;
+  final String nipd;
   final DateTime startDate;
   final DateTime endDate;
 
   Getdatefilter({
-    required this.nis,
+    required this.nipd,
     required this.startDate,
     required this.endDate,
   });
 
   @override
-  List<Object> get props => [nis, startDate, endDate];
+  List<Object> get props => [nipd, startDate, endDate];
 }

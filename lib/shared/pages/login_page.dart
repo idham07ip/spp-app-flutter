@@ -47,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                 isSnackbarShown = true;
               }
             } else {
-              showCustomSnackbar(context, 'NIS dan Password Tidak Valid');
+              showCustomSnackbar(context, state.e.toString());
             }
           }
         },
@@ -55,9 +55,9 @@ class _LoginPageState extends State<LoginPage> {
           if (state is AuthLoading) {
             return Container(
               child: Center(
-                child: Image.asset(
-                  'assets/loading.gif',
-                  gaplessPlayback: true,
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                  strokeWidth: 3,
                 ),
               ),
             );
@@ -151,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                               context.read<AuthBloc>().add(
                                     AuthLogin(
                                       SignInFormModel(
-                                          nis: nisController.text,
+                                          nipd: nisController.text,
                                           password: passwordController.text),
                                     ),
                                   );

@@ -1,23 +1,23 @@
 class SignInFormModel {
-  final String? nis;
+  final String? nipd;
   final String? password;
 
   SignInFormModel({
-    this.nis,
+    this.nipd,
     this.password,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'nis': nis,
+      'nipd': nipd,
       'password': password,
     };
   }
 
   SignInFormModel copyWith({
-    String? nis,
+    String? nipd,
     String? password,
   }) =>
       SignInFormModel(
-          nis: nis ?? this.nis, password: password ?? this.password);
+          nipd: nipd ?? this.nipd, password: password ?? this.password);
 }

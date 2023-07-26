@@ -14,7 +14,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
           emit(TransactionLoading());
 
           final transactions =
-              await PaymentMethodService().getTransaction(event.nis);
+              await PaymentMethodService().getTransaction(event.nipd);
 
           emit(TransactionSuccess(transactions));
         } catch (e) {

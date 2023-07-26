@@ -1,47 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:spp_app/shared/theme.dart';
-import 'package:spp_app/shared/widgets/buttons.dart';
 
 class ProfileEditSuccessPage extends StatelessWidget {
   const ProfileEditSuccessPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Nice Update!',
-              style: blackTextStyle.copyWith(
-                fontSize: 20,
-                fontWeight: semiBold,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacementNamed(context, '/login');
+        return false;
+      },
+      child: Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/hore_neko.gif', // Replace with your image asset path
+                width: 120,
+                height: 120,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(
-              height: 26,
-            ),
-            Text(
-              'Your data is safe with\nour system',
-              style: greyTextStyle.copyWith(
-                fontSize: 16,
+              SizedBox(height: 20),
+              Text(
+                'Berhasil Update Password!',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            CustomFilledButton(
-              width: 183,
-              title: 'My Profile',
-              onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, '/home', (route) => false);
-              },
-            ),
-          ],
+              const SizedBox(
+                height: 26,
+              ),
+              Text(
+                'Silahkan lakukan login ulang\nmohon jaga kerahasiaan data anda',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 50,
+              ),
+            ],
+          ),
         ),
       ),
     );

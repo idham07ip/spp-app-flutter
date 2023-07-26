@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:spp_app/model/sign_in_form_model.dart';
@@ -45,9 +47,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
             emit(AuthLoading());
 
-            await AuthService().updateUser(event.data);
+            final updatedUserFromApi =
+                await AuthService().updateUser(event.data);
 
-            emit(AuthSuccess(updatedUser));
+            // Update the user in the state with the updatedUserFromApi
+            emit(AuthSuccess(updatedUserFromApi));
           } else {
             throw Exception('Invalid state');
           }

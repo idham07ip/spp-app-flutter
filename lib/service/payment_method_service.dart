@@ -7,9 +7,50 @@ import 'package:http/http.dart' as http;
 import 'package:spp_app/model/pembayaran_form_model.dart';
 import 'package:spp_app/model/transaction_form_model.dart';
 
+import '../model/filter_amount.dart';
+
 class PaymentMethodService {
-  static const String Url = 'https://arrahman.site/api_spp/api';
+  static const String Url = 'https://arrahman.site/spp-web/api';
   static const String token = 'KE9NDFUZ7KO2XNG43QQXVMIFKOL4L7H9';
+
+  Future<NominalData> fetchNominalData(String nipd, String thnAkademik) async {
+    try {
+      final url = Uri.parse(
+          'https://arrahman.site/spp-web/api/nominalfilter?nipd=$nipd&thn_akademik=$thnAkademik');
+
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+
+        if (jsonData is List) {
+          List<Transaction> transactions = jsonData
+              .map((transactionData) => Transaction.fromJson(transactionData))
+              .toList();
+
+          return NominalData(data: transactions);
+        } else {
+          throw Exception('Data is not in the expected format');
+        }
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      // Handle the error gracefully
+      print('Error fetching nominal data: $e');
+      throw Exception('Failed to fetch nominal data');
+    }
+  }
+
+  Future<List<TransactionFormModel>> getAdditionalTransactions(
+      String nis, int count, int startIndex) async {
+    // TODO: Implement the logic to fetch additional transactions
+    // based on the given parameters (nis, count, startIndex).
+    // Return a list of TransactionFormModel objects.
+    // You can use any API or data source to fetch the data.
+    // For now, I'll return an empty list as a placeholder.
+    return [];
+  }
 
   Future<String> payment(PembayaranFormModel data, PlatformFile? image) async {
     var request = http.MultipartRequest(
@@ -18,11 +59,18 @@ class PaymentMethodService {
     );
 
     request.headers['Authorization'] = 'Bearer $token';
-    request.fields['nis'] = data.nis ?? '';
+    request.fields['nipd'] = data.nipd ?? '';
     request.fields['nama_siswa'] = data.nama_siswa ?? '';
     request.fields['instansi'] = data.instansi ?? '';
     request.fields['nominal'] = data.nominal ?? '';
     request.fields['keterangan'] = data.keterangan ?? '';
+    request.fields['start_range_date'] = data.startRangeDate ?? '';
+    request.fields['end_range_date'] = data.endRangeDate ?? '';
+    request.fields['thn_akademik'] = data.thn_akademik ?? '';
+    // request.fields['start_range_date'] =
+    //     data.startRangeDate?.toIso8601String() ?? '';
+    // request.fields['end_range_date'] =
+    //     data.endRangeDate?.toIso8601String() ?? '';
 
     if (image != null) {
       // Convert PlatformFile to File
@@ -46,32 +94,50 @@ class PaymentMethodService {
     if (response.statusCode == 200) {
       return responseData;
     } else {
-      throw Exception('Failed to checkout: $responseData');
+      var errorResponse;
+      try {
+        errorResponse = jsonDecode(responseData);
+      } catch (e) {
+        throw Exception('Failed to checkout: $responseData');
+      }
+
+      if (errorResponse is Map<String, dynamic> &&
+          errorResponse.containsKey('error')) {
+        throw ('${errorResponse['error']}');
+      } else {
+        throw ('Failed to checkout');
+      }
     }
   }
 
   Future<List<TransactionFormModel>> getTransactionDate(
-      String nis, DateTime startDate, DateTime endDate) async {
-    final Uri url = Uri.parse(
-      '$Url/filterdate?nis=$nis&start_date=${startDate.toString().substring(0, 10)}&end_date=${endDate.toString().substring(0, 10)}&sort=-created_at',
-    );
+      String nipd, DateTime? startDate, DateTime? endDate) async {
+    if (startDate == null || endDate == null) {
+      throw ArgumentError('Start date and end date must not be null');
+    }
+
+    final formattedStartDate = startDate.toString().substring(0, 10);
+    final formattedEndDate = endDate.toString().substring(0, 10);
+
+    final url = Uri.parse(
+        '$Url/filterdate?nipd=$nipd&start_date=$formattedStartDate&end_date=$formattedEndDate&sort=asc');
+
     try {
-      final http.Response response = await http.get(
+      final response = await http.get(
         url,
         headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> transactionList = jsonDecode(response.body);
-        final List<TransactionFormModel> transactions =
-            transactionList.map((dynamic item) {
-          return TransactionFormModel.fromJson(item as Map<String, dynamic>);
-        }).toList();
+        final transactions = transactionList
+            .map((dynamic item) =>
+                TransactionFormModel.fromJson(item as Map<String, dynamic>))
+            .toList();
 
-        print('getTransactionDate success: $transactions');
         return transactions;
       } else {
-        throw jsonDecode(response.body)['message'];
+        throw jsonDecode(response.body)['error'];
       }
     } catch (e) {
       print('getTransactionDate error: $e');
@@ -79,23 +145,19 @@ class PaymentMethodService {
     }
   }
 
-  Future<List<TransactionFormModel>> getTransaction(
-    String nis,
-  ) async {
+  Future<List<TransactionFormModel>> getTransaction(String nipd) async {
     try {
       final res = await http.get(
-        Uri.parse('$Url/getpayments/$nis?sort=-created_at'),
+        Uri.parse('$Url/getpayments/$nipd?sort=-created_at'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
       if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        if (data != null && data is List && data.isNotEmpty) {
-          return List<TransactionFormModel>.from(
-            data.map(
-              (transactions) => TransactionFormModel.fromJson(transactions),
-            ),
-          ).toList();
+        final data = jsonDecode(res.body) as List<dynamic>;
+        if (data.isNotEmpty) {
+          return data
+              .map((transaction) => TransactionFormModel.fromJson(transaction))
+              .toList();
         } else {
           throw 'Data tidak ditemukan';
         }

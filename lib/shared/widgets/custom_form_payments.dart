@@ -1,5 +1,8 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 class CustomFormUpload extends StatelessWidget {
   final String hintText;
@@ -71,15 +74,24 @@ class _CustomFormPaymentNumbersState extends State<CustomFormPaymentNumbers> {
   final FocusNode _focusNode = FocusNode();
   bool _hasError = false;
   String? _errorMessage;
+  // final CurrencyInputFormatter _inputFormatter = CurrencyInputFormatter();
 
   @override
   void initState() {
     super.initState();
-    _focusNode.addListener(() {
-      setState(() {
-        _hasError =
-            !_focusNode.hasFocus && _validateInput(widget.controller?.text);
-      });
+    _focusNode.addListener(_validateInputOnFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_validateInputOnFocusChange);
+    super.dispose();
+  }
+
+  void _validateInputOnFocusChange() {
+    setState(() {
+      _hasError =
+          !_focusNode.hasFocus && _validateInput(widget.controller?.text);
     });
   }
 
@@ -97,7 +109,7 @@ class _CustomFormPaymentNumbersState extends State<CustomFormPaymentNumbers> {
           readOnly: widget.readOnly,
           focusNode: _focusNode,
           style: TextStyle(),
-          decoration: new InputDecoration(
+          decoration: InputDecoration(
             hintText: widget.hintText,
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
@@ -113,18 +125,21 @@ class _CustomFormPaymentNumbersState extends State<CustomFormPaymentNumbers> {
             errorText: _hasError ? _errorMessage : null,
           ),
           keyboardType: TextInputType.number,
-          inputFormatters: <TextInputFormatter>[
-            FilteringTextInputFormatter.digitsOnly
+          inputFormatters: [
+            // FilteringTextInputFormatter.digitsOnly,
+            // _inputFormatter,
           ],
-          onChanged: (input) {
-            setState(() {
-              _hasError = _validateInput(input);
-              _errorMessage = _getErrorMessage(input);
-            });
-          },
+          onChanged: _validateInputOnChange,
         ),
       ],
     );
+  }
+
+  void _validateInputOnChange(String input) {
+    setState(() {
+      _hasError = _validateInput(input);
+      _errorMessage = _getErrorMessage(input);
+    });
   }
 
   bool _validateInput(String? input) {
@@ -159,6 +174,33 @@ class _CustomFormPaymentNumbersState extends State<CustomFormPaymentNumbers> {
     return null;
   }
 }
+
+// class CurrencyInputFormatter extends TextInputFormatter {
+//   final NumberFormat _currencyFormat = NumberFormat.currency(
+//     locale: 'id_ID',
+//     symbol: '',
+//     decimalDigits: 0,
+//   );
+
+//   @override
+//   TextEditingValue formatEditUpdate(
+//       TextEditingValue oldValue, TextEditingValue newValue) {
+//     if (newValue.selection.baseOffset == 0) {
+//       return newValue;
+//     }
+
+//     final sanitizedText = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
+
+//     final formattedText = _currencyFormat.format(
+//       int.parse(sanitizedText),
+//     );
+
+//     return TextEditingValue(
+//       text: formattedText,
+//       selection: TextSelection.collapsed(offset: formattedText.length),
+//     );
+//   }
+// }
 
 class CustomFormPayment extends StatefulWidget {
   final String hintText;

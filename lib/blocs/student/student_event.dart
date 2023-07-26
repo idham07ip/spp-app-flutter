@@ -8,11 +8,11 @@ abstract class StudentEvent extends Equatable {
 }
 
 class GetPriceSiswa extends StudentEvent {
-  final String nis;
+  final String nipd;
 
-  GetPriceSiswa({required this.nis});
+  GetPriceSiswa({required this.nipd});
 
   @override
   // TODO: implement props
-  List<Object> get props => [nis];
+  List<Object> get props => [nipd];
 }

@@ -57,7 +57,7 @@ class _ScreenshotContainerState extends State<ScreenshotContainer> {
     super.initState();
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthSuccess) {
-      nisController.text = authState.user.nis!;
+      nisController.text = authState.user.nipd!;
       namasiswaController.text = authState.user.nama_siswa!;
       passwordController.text = authState.user.password!;
     }

@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, unused_import
+// ignore_for_file: unused_field, unused_import, unused_local_variable
 
 import 'dart:math';
 
@@ -19,6 +19,21 @@ class ContentPage extends StatefulWidget {
 
   @override
   State<ContentPage> createState() => _ContentPageState();
+}
+
+String getGreeting() {
+  DateTime now = DateTime.now();
+  int currentHour = now.hour;
+
+  if (currentHour >= 0 && currentHour < 10) {
+    return 'Selamat Pagi,';
+  } else if (currentHour >= 10 && currentHour < 15) {
+    return 'Selamat Siang,';
+  } else if (currentHour >= 15 && currentHour < 18) {
+    return 'Selamat Sore,';
+  } else {
+    return 'Selamat Malam,';
+  }
 }
 
 class _ContentPageState extends State<ContentPage> {
@@ -46,6 +61,19 @@ class _ContentPageState extends State<ContentPage> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is AuthSuccess) {
+          String namaSiswa = state.user.nama_siswa.toString();
+          List<String> words = namaSiswa.split(' ');
+
+          String line1 = '';
+          String line2 = '';
+
+          for (int i = 0; i < words.length; i++) {
+            if (line1.length + words[i].length <= 17) {
+              line1 += words[i] + ' ';
+            } else {
+              line2 += words[i] + ' ';
+            }
+          }
           return Container(
             margin: const EdgeInsetsDirectional.only(
               top: 40,
@@ -57,22 +85,44 @@ class _ContentPageState extends State<ContentPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Selamat Datang,',
+                      '${getGreeting()}',
                       style: greenTextStyle.copyWith(
                         fontSize: 16,
                       ),
                     ),
+                    const SizedBox(height: 2),
+                    LayoutBuilder(
+                      builder:
+                          (BuildContext context, BoxConstraints constraints) {
+                        final maxWidth = constraints.maxWidth;
 
-                    //
-                    const SizedBox(
-                      height: 2,
-                    ),
-                    Text(
-                      state.user.nama_siswa.toString(),
-                      style: blackTextStyle.copyWith(
-                        fontSize: 20,
-                        fontWeight: semiBold,
-                      ),
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              line1.trim(),
+                              style: blackTextStyle.copyWith(
+                                fontSize: 20,
+                                fontWeight: semiBold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (line2.trim().isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                line2.trim(),
+                                style: blackTextStyle.copyWith(
+                                  fontSize: 20,
+                                  fontWeight: semiBold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -169,7 +219,7 @@ class _ContentPageState extends State<ContentPage> {
                     style: whiteTextStyle,
                   ),
                   Text(
-                    state.user.nis.toString(),
+                    state.user.nipd.toString(),
                     style: whiteTextStyle.copyWith(
                       fontSize: 22,
                       fontWeight: bold,

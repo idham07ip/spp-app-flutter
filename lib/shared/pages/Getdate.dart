@@ -17,7 +17,7 @@ class _GetDateState extends State<GetDate> {
     super.initState();
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthSuccess) {
-      nisController.text = authState.user.nis!;
+      nisController.text = authState.user.nipd!;
     }
   }
 

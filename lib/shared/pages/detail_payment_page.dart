@@ -36,6 +36,22 @@ class _PaymentDetailsState extends State<PaymentDetails> {
   final passwordController = TextEditingController(text: '');
   final kelasController = TextEditingController(text: '');
   final tingkatSekolah = TextEditingController(text: '');
+  final tahunAkademik = TextEditingController(text: '');
+
+  String getStatusText(String? status) {
+    final intStatus = int.tryParse(status ?? '');
+
+    switch (intStatus) {
+      case 0:
+        return 'Ditolak';
+      case 1:
+        return 'Pending';
+      case 2:
+        return 'Diterima';
+      default:
+        return 'Unknown';
+    }
+  }
 
   Future<void> _takeScreenshot() async {
     try {
@@ -74,11 +90,30 @@ class _PaymentDetailsState extends State<PaymentDetails> {
     nominal = double.parse(widget.transactions.nominal!);
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthSuccess) {
-      nisController.text = authState.user.nis!;
+      nisController.text = authState.user.nipd!;
       namasiswaController.text = authState.user.nama_siswa!;
       kelasController.text = authState.user.kelas!;
       tingkatSekolah.text = authState.user.instansi!;
+      tahunAkademik.text = authState.user.thn_akademik!;
     }
+  }
+
+  List<String> splitText(String text) {
+    List<String> lines = [];
+    List<String> words = text.split(' ');
+
+    String currentLine = '';
+    for (int i = 0; i < words.length; i++) {
+      if ((currentLine.length + words[i].length + 1) <= 20) {
+        currentLine += words[i] + ' ';
+      } else {
+        lines.add(currentLine.trim());
+        currentLine = words[i] + ' ';
+      }
+    }
+    lines.add(currentLine.trim());
+
+    return lines;
   }
 
   bool _isExpanded = false;
@@ -103,9 +138,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
           'Detail History',
         ),
       ),
-
-      //
-
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -121,9 +153,43 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(
-                      height: 15,
+                    const SizedBox(height: 15),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 8.0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              "Tahun Ajaran :",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              tahunAkademik.text,
+                              textAlign: TextAlign.right,
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: greenColor,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Poppins',
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 15),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24.0,
@@ -145,7 +211,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                           ),
                           Expanded(
                             child: Text(
-                              "${widget.transactions.nis}",
+                              "${widget.transactions.nipd}",
                               textAlign: TextAlign.right,
                               style: TextStyle(
                                 fontSize: 16.0,
@@ -177,15 +243,23 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                               fontFamily: 'Poppins',
                             ),
                           ),
-                          Flexible(
-                            child: Text(
-                              "${widget.transactions.nama_siswa}",
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Poppins',
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                for (String line
+                                    in splitText(namasiswaController.text))
+                                  Text(
+                                    line,
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                              ],
                             ),
                           ),
                         ],
@@ -274,7 +348,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                           ),
                           Text(
                             DateFormat('dd MMMM yyyy').format(
-                              widget.transactions.created_at ?? DateTime.now(),
+                              widget.transactions.bulan ?? DateTime.now(),
                             ),
                             style: TextStyle(
                               fontSize: 16.0,
@@ -285,7 +359,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 15),
+                    SizedBox(height: 15),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -357,7 +431,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 15),
+                        SizedBox(height: 15),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24.0,
@@ -379,7 +453,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                               ),
                               Expanded(
                                 child: Text(
-                                  "${widget.transactions.status}",
+                                  getStatusText(widget.transactions.status),
                                   textAlign: TextAlign.right,
                                   style: TextStyle(
                                     fontSize: 16.0,
@@ -393,7 +467,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 15),
+                        SizedBox(height: 15),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24.0,
@@ -462,7 +536,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 15),
+                        SizedBox(height: 15),
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -475,7 +549,7 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                                       alignment: Alignment.center,
                                       child: PhotoView(
                                         imageProvider: NetworkImage(
-                                          'https://arrahman.site/api_spp/uploads/${widget.transactions.image}',
+                                          'https://arrahman.site/spp-web/uploads/${widget.transactions.image}',
                                         ),
                                       ),
                                     ),
@@ -487,13 +561,13 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                           child: Align(
                             alignment: Alignment.center,
                             child: Image.network(
-                              'https://arrahman.site/api_spp/uploads/${widget.transactions.image}',
+                              'https://arrahman.site/spp-web/uploads/${widget.transactions.image}',
                               width: 200,
                               height: 200,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 15),
+                        SizedBox(height: 15),
                         Row(
                           children: <Widget>[
                             Expanded(
