@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:spp_app/model/user_model.dart';
@@ -197,154 +198,177 @@ class _PieChartSample1State extends State<PieChartSample1> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('Grafik Performa'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Text(
-              'Periode Tahun Ajaran : $th_akademik \n\nTotal Biaya Yang Harus Dilunasi \nSampai Tahun Ajaran Baru Sebesar : $formattedTotalBiaya',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Expanded(
-              child: StreamBuilder<UserModel?>(
-                stream: getUserStream(nisController.text),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container();
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Terjadi kesalahan: ${snapshot.error}'),
-                    );
-                  } else {
-                    final UserModel? user = snapshot.data;
-                    if (user == null) {
-                      return Center(
-                        child: Text('Data siswa tidak ditemukan.'),
-                      );
-                    }
-
-                    akademik.text = user.thn_akademik ?? '';
-
-                    return Center(
-                        child: status != null
-                            ? FutureBuilder(
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return Container();
-                                  } else {
-                                    return PieChart(
-                                      PieChartData(
-                                        pieTouchData: PieTouchData(
-                                          touchCallback: (FlTouchEvent event,
-                                              pieTouchResponse) {
-                                            setState(() {
-                                              if (!event
-                                                      .isInterestedForInteractions ||
-                                                  pieTouchResponse == null ||
-                                                  pieTouchResponse
-                                                          .touchedSection ==
-                                                      null) {
-                                                touchedIndex = -1;
-                                                return;
-                                              }
-                                              touchedIndex = pieTouchResponse
-                                                  .touchedSection!
-                                                  .touchedSectionIndex;
-                                            });
-                                          },
-                                        ),
-                                        startDegreeOffset: 180,
-                                        borderData: FlBorderData(show: false),
-                                        sectionsSpace: 1,
-                                        centerSpaceRadius: 0,
-                                        sections: showingSections2(),
-                                      ),
-                                    );
-                                  }
-                                },
-                              )
-                            : CircularProgressIndicator(
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.green),
-                                strokeWidth: 3,
-                              ));
-                  }
-                },
-              ),
-            ),
-            const SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                if (status != null)
-                  Indicator(
-                    color: Colors.green,
-                    text: 'Progress Lunas',
-                    isSquare: false,
-                    size: touchedIndex == 0 ? 18 : 16,
-                    textColor: touchedIndex == 0 ? Colors.black : Colors.black,
-                    count: int.tryParse(status!.analytics.total_nominal) ?? 0,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: whiteColor,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(25, 5, 10, 0),
+                child: Text(
+                  'Periode Tahun Ajaran : $th_akademik \n\nTotal Biaya Yang Harus Dilunasi \nSampai Tahun Ajaran Baru Sebesar : \n$formattedTotalBiaya',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
                   ),
-              ],
-            ),
-            const SizedBox(height: 25),
-            const SizedBox(height: 10),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columns: [
-                    DataColumn(
-                      label: Text('Bulan'),
-                    ),
-                    DataColumn(
-                      label: Text('Nominal'),
-                    ),
-                    DataColumn(
-                      label: Text('Tahun Akademik'),
-                    ),
-                  ],
-                  rows: _nominalData?.data
-                          .skip((currentPage - 1) * itemsPerPage)
-                          .take(itemsPerPage)
-                          .map<DataRow>((transaction) {
-                        return DataRow(
-                          cells: [
-                            DataCell(Text(transaction.bulan)),
-                            DataCell(Text(formatValue(transaction.nominal))),
-                            DataCell(Text(transaction.thn_akademik)),
-                          ],
-                        );
-                      }).toList() ??
-                      [],
                 ),
               ),
-            ),
 
-            // ... (other existing widgets)
+              //
+              SizedBox(height: 65),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                IconButton(
-                  onPressed: goToPreviousPage, // Use the custom functions
-                  icon: Icon(Icons.arrow_back),
+              Expanded(
+                child: StreamBuilder<UserModel?>(
+                  stream: getUserStream(nisController.text),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container();
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Terjadi kesalahan: ${snapshot.error}'),
+                      );
+                    } else {
+                      final UserModel? user = snapshot.data;
+                      if (user == null) {
+                        return Center(
+                          child: Text('Data siswa tidak ditemukan.'),
+                        );
+                      }
+
+                      akademik.text = user.thn_akademik ?? '';
+
+                      return Center(
+                          child: status != null
+                              ? FutureBuilder(
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Container();
+                                    } else {
+                                      return PieChart(
+                                        PieChartData(
+                                          pieTouchData: PieTouchData(
+                                            touchCallback: (FlTouchEvent event,
+                                                pieTouchResponse) {
+                                              setState(() {
+                                                if (!event
+                                                        .isInterestedForInteractions ||
+                                                    pieTouchResponse == null ||
+                                                    pieTouchResponse
+                                                            .touchedSection ==
+                                                        null) {
+                                                  touchedIndex = -1;
+                                                  return;
+                                                }
+                                                touchedIndex = pieTouchResponse
+                                                    .touchedSection!
+                                                    .touchedSectionIndex;
+                                              });
+                                            },
+                                          ),
+                                          startDegreeOffset: 180,
+                                          borderData: FlBorderData(show: false),
+                                          sectionsSpace: 1,
+                                          centerSpaceRadius: 0,
+                                          sections: showingSections2(),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                )
+                              : const CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.green),
+                                  strokeWidth: 3,
+                                ));
+                    }
+                  },
                 ),
-                SizedBox(width: 10),
-                IconButton(
-                  onPressed: goToNextPage, // Use the custom functions
-                  icon: Icon(Icons.arrow_forward),
+              ),
+              const SizedBox(height: 65),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  if (status != null)
+                    Indicator(
+                      color: Colors.green,
+                      text: 'Progress Lunas',
+                      isSquare: false,
+                      size: touchedIndex == 0 ? 18 : 16,
+                      textColor:
+                          touchedIndex == 0 ? Colors.black : Colors.black,
+                      count: int.tryParse(status!.analytics.total_nominal) ?? 0,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 25),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.greenAccent,
                 ),
-              ],
-            ),
-          ],
+                child: Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(
+                          label: Text('Bulan'),
+                        ),
+                        DataColumn(
+                          label: Text('Nominal'),
+                        ),
+                        DataColumn(
+                          label: Text('Tahun Akademik'),
+                        ),
+                      ],
+                      rows: _nominalData?.data
+                              .skip((currentPage - 1) * itemsPerPage)
+                              .take(itemsPerPage)
+                              .map<DataRow>((transaction) {
+                            return DataRow(
+                              cells: [
+                                DataCell(Text(transaction.bulan)),
+                                DataCell(
+                                    Text(formatValue(transaction.nominal))),
+                                DataCell(Text(transaction.thn_akademik)),
+                              ],
+                            );
+                          }).toList() ??
+                          [],
+                    ),
+                  ),
+                ),
+              ),
+
+              // ... (other existing widgets)
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  IconButton(
+                    onPressed: goToPreviousPage, // Use the custom functions
+                    icon: Icon(Icons.arrow_back),
+                  ),
+                  SizedBox(width: 10),
+                  IconButton(
+                    onPressed: goToNextPage, // Use the custom functions
+                    icon: Icon(Icons.arrow_forward),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
