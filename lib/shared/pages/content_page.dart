@@ -168,65 +168,90 @@ class _ContentPageState extends State<ContentPage> {
     );
   }
 
-  //Build Wallet Cart
   Widget buildWalletCard() {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is AuthSuccess) {
+          final String institutionName = state.user.instansi.toString();
+          final String nipd = state.user.nipd.toString();
+          final String institutionInitial = institutionName.isNotEmpty
+              ? institutionName[0].toUpperCase()
+              : "";
+
           return Container(
-            width: MediaQuery.of(context).size.width / 10,
-            height: MediaQuery.of(context).size.height / 3.5,
-            margin: const EdgeInsets.only(
-              top: 30,
-            ),
-            padding: const EdgeInsets.all(30),
+            width: 160,
+            height: 160,
+            margin: const EdgeInsets.only(top: 30),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.red,
+                  Colors.black,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: greyColor,
+                  color: Colors.grey.withOpacity(0.5),
                   blurRadius: 5.0,
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
-              image: const DecorationImage(
-                fit: BoxFit.cover,
-                image: AssetImage(
-                  'assets/img_bg_card.png',
-                ),
-              ),
             ),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 23,
-                  ),
-                  Text(
-                    state.user.instansi.toString(),
-                    style: whiteTextStyle.copyWith(
-                      fontSize: 18,
-                      fontWeight: extraBold,
-                      letterSpacing: 3,
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: Center(
+                      child: Text(
+                        institutionInitial,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(
-                    height: 20,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 60),
+                      Text(
+                        '$institutionName',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(height: 25),
+                      Text(
+                        nipd,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    'NISN',
-                    style: whiteTextStyle,
-                  ),
-                  Text(
-                    state.user.nipd.toString(),
-                    style: whiteTextStyle.copyWith(
-                      fontSize: 22,
-                      fontWeight: bold,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         }

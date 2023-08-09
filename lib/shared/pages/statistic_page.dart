@@ -30,9 +30,13 @@ class PieChartSample1 extends StatefulWidget {
 
 class _PieChartSample1State extends State<PieChartSample1> {
   int touchedIndex = -1;
+  final PageController _pageController = PageController(initialPage: 0);
+  List<DataRow> _dataRows = [];
+
   Status? status;
   NominalData? _nominalData;
   String? currentAcademicYear;
+
   bool isUserDataChanged = false; // Add this boolean flag
   final apiBaseUrl = 'https://arrahman.site/spp-web/api';
   final authToken = 'Bearer KE9NDFUZ7KO2XNG43QQXVMIFKOL4L7H9';
@@ -41,8 +45,8 @@ class _PieChartSample1State extends State<PieChartSample1> {
   late final instansi = TextEditingController();
   late final akademik = TextEditingController();
   late StreamSubscription<UserModel?> _userStreamSubscription;
-  int currentPage = 1;
-  int itemsPerPage = 3; // You can adjust this value as needed
+  int itemsPerPage = 4; // You can adjust this value as needed
+  int currentPage = 1; // You can adjust this value as needed
 
   @override
   void initState() {
@@ -72,35 +76,7 @@ class _PieChartSample1State extends State<PieChartSample1> {
     });
   }
 
-  // Function to handle arrow button press to move to the previous page
-  void goToPreviousPage() {
-    if (currentPage > 1) {
-      setState(() {
-        currentPage--;
-      });
-    }
-  }
-
-  // Function to handle arrow button press to move to the next page
-  void goToNextPage() {
-    if (currentPage < totalPageCount) {
-      setState(() {
-        currentPage++;
-      });
-    }
-  }
-
-  // Calculate the total number of pages based on the number of data items and itemsPerPage
-  int get totalPageCount {
-    if (_nominalData?.data.isEmpty ?? true) {
-      return 1;
-    } else {
-      return ((_nominalData!.data.length - 1) ~/ itemsPerPage) + 1;
-    }
-  }
-
   Stream<UserModel?> getUserStream(String nipd) async* {
-    // Tidak ada loop tak terbatas di sini, Stream hanya mengambil data sekali
     try {
       final res = await http.post(
         Uri.parse('https://arrahman.site/spp-web/api/getdatasiswa'),
@@ -174,7 +150,7 @@ class _PieChartSample1State extends State<PieChartSample1> {
       }
     } catch (e) {
       print('Error fetching nominal data: $e');
-      Fluttertoast.showToast(msg: 'Failed to fetch nominal data');
+      // Fluttertoast.showToast(msg: 'Table Not Show Because Data Not Found');
     }
   }
 
@@ -199,7 +175,7 @@ class _PieChartSample1State extends State<PieChartSample1> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Grafik Performa'),
+        title: Text('Statistic'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -214,158 +190,77 @@ class _PieChartSample1State extends State<PieChartSample1> {
               SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.fromLTRB(25, 5, 10, 0),
-                child: Text(
-                  'Periode Tahun Ajaran : $th_akademik \n\nTotal Biaya Yang Harus Dilunasi \nSampai Tahun Ajaran Baru Sebesar : \n$formattedTotalBiaya',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFFB2EBF2), // Pale Blue
+                        Color(0xFFC8E6C9), // Mint Green
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 3,
+                        blurRadius: 7,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      'Periode Tahun Ajaran : $th_akademik \n\nTotal Biaya Yang Harus Dilunasi \nSampai Tahun Ajaran Baru Sebesar : \n$formattedTotalBiaya',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800], // Dark Gray
+                      ),
+                    ),
                   ),
                 ),
               ),
 
-              //
-              SizedBox(height: 65),
-
-              Expanded(
-                child: StreamBuilder<UserModel?>(
-                  stream: getUserStream(nisController.text),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Container();
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text('Terjadi kesalahan: ${snapshot.error}'),
-                      );
-                    } else {
-                      final UserModel? user = snapshot.data;
-                      if (user == null) {
-                        return Center(
-                          child: Text('Data siswa tidak ditemukan.'),
-                        );
-                      }
-
-                      akademik.text = user.thn_akademik ?? '';
-
-                      return Center(
-                          child: status != null
-                              ? FutureBuilder(
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return Container();
-                                    } else {
-                                      return PieChart(
-                                        PieChartData(
-                                          pieTouchData: PieTouchData(
-                                            touchCallback: (FlTouchEvent event,
-                                                pieTouchResponse) {
-                                              setState(() {
-                                                if (!event
-                                                        .isInterestedForInteractions ||
-                                                    pieTouchResponse == null ||
-                                                    pieTouchResponse
-                                                            .touchedSection ==
-                                                        null) {
-                                                  touchedIndex = -1;
-                                                  return;
-                                                }
-                                                touchedIndex = pieTouchResponse
-                                                    .touchedSection!
-                                                    .touchedSectionIndex;
-                                              });
-                                            },
-                                          ),
-                                          startDegreeOffset: 180,
-                                          borderData: FlBorderData(show: false),
-                                          sectionsSpace: 1,
-                                          centerSpaceRadius: 0,
-                                          sections: showingSections2(),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                )
-                              : const CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.green),
-                                  strokeWidth: 3,
-                                ));
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 65),
+              SizedBox(height: 18),
+              // Display Total Biaya and Sudah Lunas in a Row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   if (status != null)
-                    Indicator(
-                      color: Colors.green,
-                      text: 'Progress Lunas',
-                      isSquare: false,
-                      size: touchedIndex == 0 ? 18 : 16,
-                      textColor:
-                          touchedIndex == 0 ? Colors.black : Colors.black,
-                      count: int.tryParse(status!.analytics.total_nominal) ?? 0,
-                    ),
-                ],
-              ),
-              const SizedBox(height: 25),
-              const SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: Colors.greenAccent,
-                ),
-                child: Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(
-                          label: Text('Bulan'),
+                    Row(
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 20,
+                          color: AppColors.contentColorYellow,
                         ),
-                        DataColumn(
-                          label: Text('Nominal'),
-                        ),
-                        DataColumn(
-                          label: Text('Tahun Akademik'),
-                        ),
+                        SizedBox(width: 8),
+                        Text('Total Biaya'),
                       ],
-                      rows: _nominalData?.data
-                              .skip((currentPage - 1) * itemsPerPage)
-                              .take(itemsPerPage)
-                              .map<DataRow>((transaction) {
-                            return DataRow(
-                              cells: [
-                                DataCell(Text(transaction.bulan)),
-                                DataCell(
-                                    Text(formatValue(transaction.nominal))),
-                                DataCell(Text(transaction.thn_akademik)),
-                              ],
-                            );
-                          }).toList() ??
-                          [],
                     ),
-                  ),
-                ),
-              ),
-
-              // ... (other existing widgets)
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  IconButton(
-                    onPressed: goToPreviousPage, // Use the custom functions
-                    icon: Icon(Icons.arrow_back),
-                  ),
-                  SizedBox(width: 10),
-                  IconButton(
-                    onPressed: goToNextPage, // Use the custom functions
-                    icon: Icon(Icons.arrow_forward),
+                  Row(
+                    children: [
+                      Container(
+                        width: 20,
+                        height: 20,
+                        color: AppColors.contentColorGreen,
+                      ),
+                      SizedBox(width: 8),
+                      Text('Dana Terima'),
+                    ],
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: buildPieChartWidget(),
+              ),
+              // DataTable Widget
+              Expanded(
+                child: buildDataTableWidget(),
               ),
             ],
           ),
@@ -374,113 +269,206 @@ class _PieChartSample1State extends State<PieChartSample1> {
     );
   }
 
-  // Existing code...
+  Widget buildPieChartWidget() {
+    return StreamBuilder<UserModel?>(
+      stream: getUserStream(nisController.text),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Terjadi kesalahan: ${snapshot.error}'),
+          );
+        } else {
+          final UserModel? user = snapshot.data;
+          if (user == null) {
+            return Container();
+          }
 
-  // ... (other existing methods)
+          akademik.text = user.thn_akademik ?? '';
 
-  List<PieChartSectionData> showingSections2() {
-    if (status == null) {
+          return Center(
+            child: status != null
+                ? FutureBuilder(
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Container();
+                      } else {
+                        return PieChart(
+                          PieChartData(
+                            pieTouchData: PieTouchData(
+                              touchCallback:
+                                  (FlTouchEvent event, pieTouchResponse) {
+                                setState(() {
+                                  if (!event.isInterestedForInteractions ||
+                                      pieTouchResponse == null ||
+                                      pieTouchResponse.touchedSection == null) {
+                                    touchedIndex = -1;
+                                    return;
+                                  }
+                                  touchedIndex = pieTouchResponse
+                                      .touchedSection!.touchedSectionIndex;
+                                });
+                              },
+                            ),
+                            borderData: FlBorderData(show: false),
+                            sectionsSpace: 0,
+                            centerSpaceRadius: 40,
+                            sections: showingSections(),
+                          ),
+                        );
+                      }
+                    },
+                  )
+                : const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                    strokeWidth: 3,
+                  ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget buildDataTableWidget() {
+    final dataLength = _nominalData?.data.length ?? 0;
+    print('Data Length: $dataLength');
+
+    if (_nominalData?.data == null) {
+      // Data is still loading or null
+      return Center(
+        child: Text(
+          'Please Wait...', // Your custom message here
+          style: TextStyle(color: Colors.red),
+        ),
+      );
+    } else if (_nominalData!.data.isEmpty) {
+      // Data is loaded but empty
+      return Center(
+        child: Text(
+          'Data is empty.', // Your custom message here
+          style: TextStyle(color: Colors.red),
+        ),
+      );
+    } else {
+      // Data is loaded and not empty, display the DataTable
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: SizedBox(
+            width: 420, // Adjust the width as needed
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(
+                    label: Text('Bulan'),
+                  ),
+                  DataColumn(
+                    label: Text('Nominal'),
+                  ),
+                  DataColumn(
+                    label: Text('Tahun\nAkademik'),
+                  ),
+                ],
+                rows: _nominalData!.data.map<DataRow>((transaction) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(transaction.bulan)),
+                      DataCell(Text(formatValue(transaction.nominal))),
+                      DataCell(Text(transaction.thn_akademik)),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget buildLegendRow(String label, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 20,
+          height: 20,
+          color: color,
+        ),
+        SizedBox(width: 8),
+        Text(label),
+      ],
+    );
+  }
+
+  List<PieChartSectionData> showingSections() {
+    final int totalNominal = int.tryParse(status!.analytics.total_nominal) ?? 0;
+    final int totalBiaya = status!.analytics.total_biaya;
+
+    // Ensure totalBiaya is greater than 0
+    if (totalBiaya <= 0) {
+      // When totalBiaya is zero or negative, display "Data Tidak Tersedia" slice
       return [
         PieChartSectionData(
-          color: Colors.grey,
-          value: 1,
-          title: 'Data Tidak Ditemukan',
-          radius: 100,
+          color: Colors.grey, // Replace with your desired color
+          value: 1, // Set value to 1 to create a slice
+          title: 'Data Tidak Tersedia',
+          radius: 50, // Adjust the radius as needed
           titleStyle: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
       ];
     }
 
-    final int totalNominal = int.tryParse(status!.analytics.total_nominal) ??
-        0; // Parse total_nominal as int
-    final int totalBiaya = status!.analytics.total_biaya; // Already an int
+    // Calculate the remaining percentage (100% - (totalNominal / totalBiaya * 100))
+    final double remainingPercentageBiaya =
+        100 - (totalNominal / totalBiaya * 100);
+    final String percentageStringNominal =
+        '${(totalNominal / totalBiaya * 100).toInt()}%';
+    final String remainingPercentageStringBiaya =
+        '${remainingPercentageBiaya.toInt()}%';
 
-    final double diterimaValue =
-        (totalNominal / totalBiaya) * 100.0; // Perform floating-point division
+    return List.generate(2, (i) {
+      final isTouched = i == touchedIndex;
+      final fontSize = isTouched ? 25.0 : 16.0;
+      final radius = isTouched ? 60.0 : 50.0;
+      const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
 
-    final String percentageString = '${diterimaValue.toStringAsFixed(2)}%';
-
-    return [
-      if (diterimaValue > 0)
-        PieChartSectionData(
-          color: Colors.green,
-          value: diterimaValue / 100,
-          title: percentageString,
-          radius: 100,
-          titlePositionPercentageOffset: diterimaValue == 100 ? 0.5 : 0.55,
-          titleStyle: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-    ];
-  }
-}
-
-class Indicator extends StatelessWidget {
-  final Color color;
-  final String text;
-  final bool isSquare;
-  final double size;
-  final Color textColor;
-  final int count;
-
-  const Indicator({
-    required this.color,
-    required this.text,
-    required this.isSquare,
-    required this.size,
-    required this.textColor,
-    required this.count,
-  });
-
-  String formatValue(int value) {
-    return NumberFormat('#,###', 'id_ID').format(value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    String formattedCount = formatValue(count);
-
-    return Row(
-      children: <Widget>[
-        Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: isSquare ? BoxShape.rectangle : BoxShape.circle,
-            color: color,
-          ),
-        ),
-        const SizedBox(
-          width: 4,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
+      switch (i) {
+        case 0:
+          return PieChartSectionData(
+            color: AppColors.contentColorYellow,
+            value: totalBiaya.toDouble(),
+            title: remainingPercentageStringBiaya,
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: AppColors.mainTextColor1,
+              shadows: shadows,
             ),
-            Text(
-              'Total : Rp. $formattedCount', // Use the formatted count
-              style: TextStyle(
-                fontSize: 12,
-                color: textColor,
-              ),
+          );
+
+        case 1:
+          return PieChartSectionData(
+            color: AppColors.contentColorGreen,
+            value: totalNominal.toDouble(),
+            title: percentageStringNominal,
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: AppColors.mainTextColor1,
+              shadows: shadows,
             ),
-          ],
-        ),
-      ],
-    );
+          );
+
+        default:
+          throw Error();
+      }
+    });
   }
 }

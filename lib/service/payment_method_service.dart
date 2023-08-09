@@ -16,7 +16,7 @@ class PaymentMethodService {
   Future<NominalData> fetchNominalData(String nipd, String thnAkademik) async {
     try {
       final url = Uri.parse(
-          'https://arrahman.site/spp-web/api/nominalfilter?nipd=$nipd&thn_akademik=$thnAkademik');
+          'https://arrahman.site/spp-web/api/nominalfilter?nipd=$nipd&bulan=$thnAkademik');
 
       final response = await http.get(url);
 
@@ -148,7 +148,7 @@ class PaymentMethodService {
   Future<List<TransactionFormModel>> getTransaction(String nipd) async {
     try {
       final res = await http.get(
-        Uri.parse('$Url/getpayments/$nipd?sort=-created_at'),
+        Uri.parse('$Url/getpayments/$nipd?sort=-bulan'),
         headers: {'Authorization': 'Bearer $token'},
       );
 

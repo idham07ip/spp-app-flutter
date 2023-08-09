@@ -25,7 +25,7 @@ class HomeLatestTransactionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final createdAt = transactions.created_at ?? DateTime.now();
+    final createdAt = transactions.bulan ?? DateTime.now();
     final now = DateTime.now();
     String keterangan;
     String formattedDate;
@@ -47,8 +47,6 @@ class HomeLatestTransactionItem extends StatelessWidget {
     } else {
       formattedDate = DateFormat('dd MMMM yyyy').format(createdAt);
     }
-
-    formattedDate += " " + DateFormat('HH.mm').format(createdAt);
 
     return TextButton(
       onPressed: onTap,

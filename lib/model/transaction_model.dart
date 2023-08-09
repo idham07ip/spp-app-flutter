@@ -7,7 +7,7 @@ class TransactionModel {
   final String image;
   final String keterangan;
   final String thn_akademik;
-  final DateTime createdAt;
+  final DateTime bulan;
   final DateTime updatedAt;
 
   TransactionModel({
@@ -19,7 +19,7 @@ class TransactionModel {
     required this.image,
     required this.keterangan,
     required this.thn_akademik,
-    required this.createdAt,
+    required this.bulan,
     required this.updatedAt,
   });
 
@@ -33,7 +33,7 @@ class TransactionModel {
       image: json['image'] as String,
       keterangan: json['keterangan'] as String,
       thn_akademik: json['thn_akademik'] as String,
-      createdAt: DateTime.parse(json['created_at']),
+      bulan: DateTime.parse(json['bulan']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
   }

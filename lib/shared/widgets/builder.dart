@@ -429,33 +429,30 @@ class _QuoteWidgetState extends State<QuoteWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(
-        top: 30,
-      ),
+      margin: const EdgeInsets.only(top: 30),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Kutipan Hari Ini',
-            style: blackTextStyle.copyWith(
+            style: TextStyle(
+              color: Colors.black,
               fontSize: 16,
-              fontWeight: semiBold,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(30),
-            margin: const EdgeInsets.only(
-              top: 14,
-            ),
+            margin: const EdgeInsets.only(top: 14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: whiteColor,
+              color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: greyColor,
+                  color: Colors.grey.withOpacity(0.5),
                   blurRadius: 5.0,
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),

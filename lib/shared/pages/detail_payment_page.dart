@@ -307,37 +307,6 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Waktu :",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
-                          Text(
-                            DateFormat('HH:mm').format(
-                              widget.transactions.created_at ?? DateTime.now(),
-                            ),
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 15.0),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0,
-                        vertical: 8.0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
                             "Tanggal :",
                             style: TextStyle(
                               fontSize: 16,
