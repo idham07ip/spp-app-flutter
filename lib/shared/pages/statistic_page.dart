@@ -189,7 +189,7 @@ class _PieChartSample1State extends State<PieChartSample1> {
             children: <Widget>[
               SizedBox(height: 10),
               Padding(
-                padding: const EdgeInsets.fromLTRB(25, 5, 10, 0),
+                padding: const EdgeInsets.fromLTRB(20, 5, 20, 0),
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
@@ -226,33 +226,36 @@ class _PieChartSample1State extends State<PieChartSample1> {
 
               SizedBox(height: 18),
               // Display Total Biaya and Sudah Lunas in a Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  if (status != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 5, 20, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    if (status != null)
+                      Row(
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 20,
+                            color: AppColors.contentColorYellow,
+                          ),
+                          SizedBox(width: 8),
+                          Text('Total Biaya'),
+                        ],
+                      ),
                     Row(
                       children: [
                         Container(
                           width: 20,
                           height: 20,
-                          color: AppColors.contentColorYellow,
+                          color: AppColors.contentColorGreen,
                         ),
                         SizedBox(width: 8),
-                        Text('Total Biaya'),
+                        Text('Dana Terima'),
                       ],
                     ),
-                  Row(
-                    children: [
-                      Container(
-                        width: 20,
-                        height: 20,
-                        color: AppColors.contentColorGreen,
-                      ),
-                      SizedBox(width: 8),
-                      Text('Dana Terima'),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
               Expanded(

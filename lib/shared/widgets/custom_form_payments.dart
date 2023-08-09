@@ -348,6 +348,46 @@ class CustomFormName extends StatelessWidget {
   }
 }
 
+//Custom Button for Date
+class CustomButtonDate extends StatelessWidget {
+  final String hintText;
+  final bool obscureText;
+  final TextEditingController? controller;
+  final bool readOnly;
+
+  const CustomButtonDate({
+    Key? key,
+    this.hintText = '',
+    this.obscureText = false,
+    this.readOnly = false,
+    this.controller,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 8,
+        ),
+        TextField(
+          textAlign: TextAlign.justify,
+          obscureText: obscureText,
+          controller: controller,
+          readOnly: readOnly,
+          style: const TextStyle(),
+          decoration: InputDecoration(
+            hintText: hintText,
+            focusedBorder: const OutlineInputBorder(),
+            enabledBorder: const OutlineInputBorder(),
+            contentPadding: const EdgeInsets.all(12),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class CustomFormTingkatSekolah extends StatelessWidget {
   final String hintText;
   final bool obscureText;
