@@ -135,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                       ProfileMenuItem(
                         iconUrl: 'assets/ic_upload.png',
-                        title: 'Arsip History',
+                        title: 'Activity',
                         onTap: () {
                           Navigator.push(
                             context,

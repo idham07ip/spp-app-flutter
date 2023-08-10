@@ -175,7 +175,7 @@ class _PieChartSample1State extends State<PieChartSample1> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Statistic'),
+        title: Text('History'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -240,7 +240,7 @@ class _PieChartSample1State extends State<PieChartSample1> {
                             color: AppColors.contentColorYellow,
                           ),
                           SizedBox(width: 8),
-                          Text('Total Biaya'),
+                          Text('Belum Lunas'),
                         ],
                       ),
                     Row(
@@ -251,7 +251,7 @@ class _PieChartSample1State extends State<PieChartSample1> {
                           color: AppColors.contentColorGreen,
                         ),
                         SizedBox(width: 8),
-                        Text('Dana Terima'),
+                        Text('Lunas'),
                       ],
                     ),
                   ],
