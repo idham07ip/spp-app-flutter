@@ -116,19 +116,19 @@ class _HomePageState extends State<HomePage> {
     ];
 
     final _bottomNavbarItems = <BottomNavigationBarItem>[
-      BottomNavigationBarItem(
+      const BottomNavigationBarItem(
         icon: Icon(Icons.home),
         label: 'Beranda',
       ),
-      BottomNavigationBarItem(
+      const BottomNavigationBarItem(
         icon: Icon(Icons.camera),
         label: 'Upload',
       ),
-      BottomNavigationBarItem(
+      const BottomNavigationBarItem(
         icon: Icon(Icons.graphic_eq_outlined),
-        label: 'Statistic',
+        label: 'History',
       ),
-      BottomNavigationBarItem(
+      const BottomNavigationBarItem(
         icon: Icon(Icons.person),
         label: 'Profile',
       ),
