@@ -124,7 +124,10 @@ class _PieChartSample1State extends State<PieChartSample1> {
       }
     } catch (e) {
       print('Error fetching status data: $e');
-      Fluttertoast.showToast(msg: 'Failed to fetch status data');
+      Fluttertoast.showToast(
+        msg: 'Data Tidak Ditemukan',
+        backgroundColor: Colors.red,
+      );
     }
   }
 
@@ -150,7 +153,10 @@ class _PieChartSample1State extends State<PieChartSample1> {
       }
     } catch (e) {
       print('Error fetching nominal data: $e');
-      // Fluttertoast.showToast(msg: 'Table Not Show Because Data Not Found');
+      Fluttertoast.showToast(
+        msg: 'Data Belum Ditemukan',
+        backgroundColor: Colors.red,
+      );
     }
   }
 
@@ -332,62 +338,63 @@ class _PieChartSample1State extends State<PieChartSample1> {
   }
 
   Widget buildDataTableWidget() {
-    final dataLength = _nominalData?.data.length ?? 0;
-    print('Data Length: $dataLength');
+    final data = _nominalData?.data ?? [];
+    final dataLength = data.length;
 
-    if (_nominalData?.data == null) {
-      // Data is still loading or null
-      return Center(
-        child: Text(
-          'Please Wait...', // Your custom message here
-          style: TextStyle(color: Colors.red),
-        ),
-      );
-    } else if (_nominalData!.data.isEmpty) {
-      // Data is loaded but empty
-      return Center(
-        child: Text(
-          'Data is empty.', // Your custom message here
-          style: TextStyle(color: Colors.red),
-        ),
-      );
-    } else {
-      // Data is loaded and not empty, display the DataTable
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: SizedBox(
-            width: 420, // Adjust the width as needed
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: const [
-                  DataColumn(
-                    label: Text('Bulan'),
-                  ),
-                  DataColumn(
-                    label: Text('Nominal'),
-                  ),
-                  DataColumn(
-                    label: Text('Tahun\nAkademik'),
-                  ),
-                ],
-                rows: _nominalData!.data.map<DataRow>((transaction) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(transaction.bulan)),
-                      DataCell(Text(formatValue(transaction.nominal))),
-                      DataCell(Text(transaction.thn_akademik)),
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Container(
+          padding: EdgeInsets.all(16), // Add padding to the whole widget
+          width:
+              screenWidth, // Use the screen width as the width of the container
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: const [
+                DataColumn(
+                  label: Text('Bulan'),
+                ),
+                DataColumn(
+                  label: Text('Nominal'),
+                ),
+                DataColumn(
+                  label: Text('Tahun\nAkademik'),
+                ),
+              ],
+              rows: dataLength > 0
+                  ? data.map<DataRow>((transaction) {
+                      return DataRow(
+                        cells: [
+                          DataCell(Text(transaction.bulan)),
+                          DataCell(Text(formatValue(transaction.nominal))),
+                          DataCell(Text(transaction.thn_akademik)),
+                        ],
+                      );
+                    }).toList()
+                  : [
+                      DataRow(
+                        cells: [
+                          DataCell(Container(
+                            child: Text(''),
+                          )),
+                          DataCell(Container(
+                            child: Text(''),
+                          )),
+                          DataCell(Container(
+                            child: Text(''),
+                          )),
+                        ],
+                      ),
                     ],
-                  );
-                }).toList(),
-              ),
             ),
           ),
         ),
-      );
-    }
+      ),
+    );
   }
 
   Widget buildLegendRow(String label, Color color) {

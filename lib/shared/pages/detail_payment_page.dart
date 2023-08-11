@@ -533,6 +533,15 @@ class _PaymentDetailsState extends State<PaymentDetails> {
                               'https://arrahman.site/spp-web/uploads/${widget.transactions.image}',
                               width: 200,
                               height: 200,
+                              errorBuilder: (BuildContext context,
+                                  Object exception, StackTrace? stackTrace) {
+                                // Image not found, show default image
+                                return Image.asset(
+                                  'assets/lunas.png', // Replace with your default image asset path
+                                  width: 200,
+                                  height: 200,
+                                );
+                              },
                             ),
                           ),
                         ),

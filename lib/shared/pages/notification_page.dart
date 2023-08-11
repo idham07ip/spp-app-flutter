@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -113,11 +114,17 @@ class _NotificationPageState extends State<NotificationPage> {
         }
 
         if (filteredTransactions.isEmpty) {
-          showCustomSnackbar(context, 'Data Tidak Ditemukan');
+          Fluttertoast.showToast(
+            msg: 'Data Tidak Ditemukan',
+            backgroundColor: Colors.red,
+          );
         }
       } catch (e) {
         if (mounted) {
-          showCustomSnackbar(context, 'Data Tidak Ditemukan');
+          Fluttertoast.showToast(
+            msg: 'Data Tidak Ditemukan',
+            backgroundColor: Colors.red,
+          );
           setState(() {
             filteredTransactions = [];
           });
@@ -138,11 +145,19 @@ class _NotificationPageState extends State<NotificationPage> {
       }
 
       if (transactions.isEmpty) {
-        showCustomSnackbar(context, 'Data Tidak Ditemukan');
+        Fluttertoast.showToast(
+          msg: 'Data Belum Ditemukan',
+          backgroundColor: Colors.red,
+          // Set the text color to black
+        );
       }
     } catch (e) {
       if (mounted) {
-        showCustomSnackbar(context, 'Data Tidak Ditemukan');
+        Fluttertoast.showToast(
+          msg: 'Data Belum Ditemukan',
+          backgroundColor: Colors.red,
+          // Set the text color to black
+        );
         setState(() {
           filteredTransactions = [];
         });
@@ -195,7 +210,7 @@ class _NotificationPageState extends State<NotificationPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('History'),
+        title: const Text('Aktivitas'),
         actions: [
           IconButton(
             icon: Icon(Icons.date_range_outlined),
@@ -476,7 +491,7 @@ class _NotificationPageState extends State<NotificationPage> {
             height: 500,
           ),
           Text(
-            'Data tidak ditemukan',
+            'Data belum ditemukan',
             style: TextStyle(fontSize: 12),
           ),
         ],

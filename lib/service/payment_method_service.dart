@@ -28,27 +28,28 @@ class PaymentMethodService {
               .map((transactionData) => Transaction.fromJson(transactionData))
               .toList();
 
+          if (transactions.isEmpty) {
+            throw Exception('Data Not Found');
+          }
+
           return NominalData(data: transactions);
         } else {
           throw Exception('Data is not in the expected format');
         }
       } else {
-        throw Exception('Failed to load data');
+        if (response.statusCode == 404) {
+          throw Exception('Data Not Found');
+        } else {
+          throw Exception('Failed to load data');
+        }
       }
     } catch (e) {
-      // Handle the error gracefully
-      print('Error fetching nominal data: $e');
-      throw Exception('Failed to fetch nominal data');
+      rethrow;
     }
   }
 
   Future<List<TransactionFormModel>> getAdditionalTransactions(
       String nis, int count, int startIndex) async {
-    // TODO: Implement the logic to fetch additional transactions
-    // based on the given parameters (nis, count, startIndex).
-    // Return a list of TransactionFormModel objects.
-    // You can use any API or data source to fetch the data.
-    // For now, I'll return an empty list as a placeholder.
     return [];
   }
 
